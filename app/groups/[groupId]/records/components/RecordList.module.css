@@ -1,0 +1,40 @@
+.recordItem {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 17 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.distance {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.author {
+  border-radius: 8px;
+  background-color: var(--gray-100);
+  color: var(--black-100);
+  padding: 4px 8px;
+}
+
+.recordList {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
