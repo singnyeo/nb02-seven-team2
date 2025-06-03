@@ -1,9 +1,10 @@
 ---
-name: 🗓️ 오늘의 할 일 템플릿
+name: "\U0001F5D3️ 오늘의 할 일 템플릿"
 about: 하루 단위로 작업 계획을 정리하는 템플릿
 title: "[ 이름 | MMDD ] 하루간 할 내용 요약"
 labels: "\U0001F4DD todo"
 assignees: ''
+
 ---
 
 ## ✅ 할 일 목록
