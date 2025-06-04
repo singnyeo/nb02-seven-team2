@@ -31,9 +31,8 @@ model Group {
   GroupRecommend   GroupRecommend[]
 }
 
-
 model GroupRecommend {
-  GroupRecommend Int      @id @default(autoincrement())
+  id Int      @id @default(autoincrement())
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
@@ -51,20 +50,20 @@ model tag {
   groupId   Int
 }
 
-model User {, onDelete: Cascade
+model User {
   id             Int              @id @default(autoincrement())
   nickname       String           @unique
   password       String
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  group          Group            @relation(fields: [groupId], references: [id])
+  group          Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   ExerciseRecord ExerciseRecord[]
   groupId        Int
   GroupRecommend GroupRecommend[]
 }
 
 model ExerciseRecord {
-  Id                  Int                   @id @default(autoincrement())
+  id                  Int                   @id @default(autoincrement())
   nickname            String
   sport               String
   description         String
@@ -76,9 +75,8 @@ model ExerciseRecord {
   userId              Int
 }
 
-
 model Rank {
-  Id          Int           @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   group       Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
@@ -96,6 +94,6 @@ model Photo {
 }
 
 enum PhotoTag {
-  Group
+  GROUP
   EXERCISERECOD
 }

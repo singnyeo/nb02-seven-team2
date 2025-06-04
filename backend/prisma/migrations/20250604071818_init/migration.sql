@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "PhotoTag" AS ENUM ('Group', 'EXERCISERECOD');
+CREATE TYPE "PhotoTag" AS ENUM ('GROUP', 'EXERCISERECOD');
 
 -- CreateTable
 CREATE TABLE "Group" (
@@ -20,13 +20,13 @@ CREATE TABLE "Group" (
 
 -- CreateTable
 CREATE TABLE "GroupRecommend" (
-    "GroupRecommend" SERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "groupId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
 
-    CONSTRAINT "GroupRecommend_pkey" PRIMARY KEY ("GroupRecommend")
+    CONSTRAINT "GroupRecommend_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -54,7 +54,7 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "ExerciseRecord" (
-    "Id" SERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "nickname" TEXT NOT NULL,
     "sport" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -64,19 +64,19 @@ CREATE TABLE "ExerciseRecord" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
 
-    CONSTRAINT "ExerciseRecord_pkey" PRIMARY KEY ("Id")
+    CONSTRAINT "ExerciseRecord_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Rank" (
-    "Id" SERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "groupId" INTEGER NOT NULL,
     "WeeklyRanked" INTEGER[],
     "MonthlyRanked" INTEGER[],
 
-    CONSTRAINT "Rank_pkey" PRIMARY KEY ("Id")
+    CONSTRAINT "Rank_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -109,7 +109,7 @@ ALTER TABLE "GroupRecommend" ADD CONSTRAINT "GroupRecommend_userId_fkey" FOREIGN
 ALTER TABLE "tag" ADD CONSTRAINT "tag_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ExerciseRecord" ADD CONSTRAINT "ExerciseRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
