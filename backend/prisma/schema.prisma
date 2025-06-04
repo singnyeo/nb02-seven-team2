@@ -32,13 +32,13 @@ model Group {
 }
 
 model GroupRecommend {
-  id Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId        Int
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
 }
 
 model tag {
@@ -63,26 +63,26 @@ model User {
 }
 
 model ExerciseRecord {
-  id                  Int                   @id @default(autoincrement())
-  nickname            String
-  sport               String
-  description         String
-  duration            Int
-  distance            Int
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId              Int
+  id          Int      @id @default(autoincrement())
+  nickname    String
+  sport       String
+  description String
+  duration    Int
+  distance    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
 }
 
 model Rank {
-  id          Int           @id @default(autoincrement())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  group       Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId     Int           @unique
-  WeeklyRanked Int[]        // 0번 부터 기록 많은 유저 id 등록
-  MonthlyRanked Int[]       // 0번 부터 기록 많은 유저 id 등록
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       Int      @unique
+  WeeklyRanked  Int[] // 0번 부터 기록 많은 유저 id 등록
+  MonthlyRanked Int[] // 0번 부터 기록 많은 유저 id 등록
 }
 
 model Photo {
@@ -95,5 +95,5 @@ model Photo {
 
 enum PhotoTag {
   GROUP
-  EXERCISERECOD
+  EXERCISERECORD
 }

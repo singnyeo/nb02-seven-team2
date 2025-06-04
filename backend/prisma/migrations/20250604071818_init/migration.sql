@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "PhotoTag" AS ENUM ('GROUP', 'EXERCISERECOD');
+CREATE TYPE "PhotoTag" AS ENUM ('GROUP', 'EXERCISERECORD');
 
 -- CreateTable
 CREATE TABLE "Group" (
