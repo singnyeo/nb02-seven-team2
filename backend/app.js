@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 
+const recordViewRouter = require('./routes/record-view');
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.use('/groups/:groupId', recordViewRouter);
 
 app.get('/', (req, res) => {
   res.send('서버가 정상적으로 실행 중');
