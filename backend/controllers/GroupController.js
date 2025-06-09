@@ -76,6 +76,12 @@ class GroupController {
             photoUrl: true,
             badge: true,
             goalRep: true,
+            // 소유자 닉네임 조회
+            owner: {
+              select: {
+                nickname: true,
+              },
+            },
             // Tag는 직접 1:N 관계로 조회
             tag: {
               select: {
@@ -97,6 +103,7 @@ class GroupController {
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
+        nickname: group.owner.nickname, // 소유자 닉네임을 그룹 닉네임으로 사용
         photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
@@ -181,6 +188,7 @@ class GroupController {
         id: group.id,
         name: group.name,
         description: group.description,
+        nickname: group.owner.nickname, // 소유자 닉네임을 그룹 닉네임으로 사용
         photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
