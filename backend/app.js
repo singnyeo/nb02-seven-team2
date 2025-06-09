@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
 app.use('/groups', groupRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // 기본 라우트
