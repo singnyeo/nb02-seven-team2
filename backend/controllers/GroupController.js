@@ -73,7 +73,7 @@ class GroupController {
           select: {
             id: true,
             name: true,
-            ownerNickname: true,
+            nickname: true,
             badge: true,
             targetCount: true,
             tag: {
@@ -96,7 +96,7 @@ class GroupController {
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
-        nickname: group.ownerNickname,
+        nickname: group.nickname,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         targetCount: group.targetCount,
@@ -143,10 +143,10 @@ class GroupController {
           id: true,
           name: true,
           description: true,
-          ownerNickname: true,
+          nickname: true,
           badge: true,
           targetCount: true,
-          discordInviteUrl: true,
+          discordUrl: true,
           tag: {
             select: {
               name: true,
@@ -172,12 +172,12 @@ class GroupController {
         id: group.id,
         name: group.name,
         description: group.description,
-        nickname: group.ownerNickname,
+        nickname: group.nickname,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         targetCount: group.targetCount,
         participantCount: group._count.User,
-        discordUrl: group.discordInviteUrl,
+        discordUrl: group.discordUrl,
       };
 
       res.status(200).json({
