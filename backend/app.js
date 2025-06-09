@@ -3,18 +3,16 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-
-
 // 미들웨어 import
 const errorHandler = require('./middlewares/error-handler');
 
 // 라우터 import
 const groupRoutes = require('./routes/groups');
 
-const app = express();
-
+const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
 const { STATUS_CODE } = require('./utils/const');
 
+const app = express();
 
 // 기본 미들웨어 설정
 app.use(cors());
@@ -23,8 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
-
 app.use('/groups', groupRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // 기본 라우트
