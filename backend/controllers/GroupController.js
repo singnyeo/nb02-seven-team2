@@ -35,7 +35,7 @@ class GroupController {
         case 'recommend':
           orderBy = [
             {
-              GroupRecommend: {
+              groupRecommend: {
                 _count: 'desc',
               },
             },
@@ -44,7 +44,7 @@ class GroupController {
         case 'participants':
           orderBy = [
             {
-              User: {
+              participants: {
                 _count: 'desc',
               },
             },
@@ -73,9 +73,10 @@ class GroupController {
           select: {
             id: true,
             name: true,
-            nickname: true,
+            photoUrl: true,
             badge: true,
-            targetCount: true,
+            goalRep: true,
+            // Tag는 직접 1:N 관계로 조회
             tag: {
               select: {
                 name: true,
@@ -84,8 +85,8 @@ class GroupController {
             // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
-                User: true,
-                GroupRecommend: true,
+                participants: true, // 참여자 수
+                groupRecommend: true, // 추천 수
               },
             },
           },
@@ -96,12 +97,12 @@ class GroupController {
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
-        nickname: group.nickname,
+        photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
-        targetCount: group.targetCount,
-        recommendCount: group._count.GroupRecommend,
-        participantCount: group._count.User,
+        goalRep: group.goalRep,
+        recommendCount: group._count.groupRecommend,
+        participantCount: group._count.participants,
       }));
 
       // 페이지네이션 정보
@@ -143,19 +144,27 @@ class GroupController {
           id: true,
           name: true,
           description: true,
-          nickname: true,
+          photoUrl: true,
           badge: true,
-          targetCount: true,
-          discordUrl: true,
+          goalRep: true,
+          discordInviteUrl: true,
+          // Tag는 직접 1:N 관계로 조회
           tag: {
             select: {
               name: true,
             },
           },
+          // 소유자 정보
+          owner: {
+            select: {
+              id: true,
+              nickname: true,
+            },
+          },
           // 참여자 수를 한 번에 조회
           _count: {
             select: {
-              User: true,
+              participants: true,
             },
           },
         },
@@ -172,12 +181,13 @@ class GroupController {
         id: group.id,
         name: group.name,
         description: group.description,
-        nickname: group.nickname,
+        photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
-        targetCount: group.targetCount,
-        participantCount: group._count.User,
-        discordUrl: group.discordUrl,
+        goalRep: group.goalRep,
+        participantCount: group._count.participants,
+        discordInviteUrl: group.discordInviteUrl,
+        owner: group.owner,
       };
 
       res.status(200).json({
