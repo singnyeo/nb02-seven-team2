@@ -51,7 +51,7 @@ class GroupController {
         case 'participants':
           orderBy = [
             {
-              participants: {  // 소문자로 수정
+              participantedGroups: {  // participants → participantedGroups로 변경
                 _count: 'desc',
               },
             },
@@ -100,7 +100,7 @@ class GroupController {
             // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
-                participants: true, // 소문자로 수정
+                participantedGroups: true, // participants → participantedGroups로 변경
                 groupRecommend: true,
               },
             },
@@ -118,7 +118,7 @@ class GroupController {
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         recommendCount: group._count.groupRecommend,
-        participantCount: group._count.participants, // 소문자로 수정
+        participantCount: group._count.participantedGroups, // participants → participantedGroups로 변경
         createdAt: group.createdAt,
       }));
 
@@ -191,7 +191,7 @@ class GroupController {
           // 참여자 수를 한 번에 조회
           _count: {
             select: {
-              participants: true, // 소문자로 수정
+              participantedGroups: true, // participants → participantedGroups로 변경
               groupRecommend: true,
             },
           },
@@ -214,7 +214,7 @@ class GroupController {
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        participantCount: group._count.participants, // 소문자로 수정
+        participantCount: group._count.participantedGroups, // participants → participantedGroups로 변경
         recommendCount: group._count.groupRecommend,
         discordInviteUrl: group.discordInviteUrl,
         owner: group.owner,
