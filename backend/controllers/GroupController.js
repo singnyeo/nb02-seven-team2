@@ -6,7 +6,7 @@ class GroupController {
   /**
    * 그룹 목록 조회
    */
-  async getGroups(req, res, next) {
+  static async getGroups(req, res, next) {
     try {
       const {
         page = 1,
@@ -51,7 +51,7 @@ class GroupController {
         case 'participants':
           orderBy = [
             {
-              Participants: {  // 대문자 P로 수정
+              participants: {  // 소문자로 수정
                 _count: 'desc',
               },
             },
@@ -83,7 +83,7 @@ class GroupController {
             photoUrl: true,
             badge: true,
             goalRep: true,
-            createdAt: true, // 추가: 생성일시
+            createdAt: true,
             // 소유자 닉네임 조회
             owner: {
               select: {
@@ -100,8 +100,8 @@ class GroupController {
             // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
-                Participants: true, // 대문자 P로 수정
-                groupRecommend: true, // 추천 수
+                participants: true, // 소문자로 수정
+                groupRecommend: true,
               },
             },
           },
@@ -112,14 +112,14 @@ class GroupController {
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
-        nickname: group.owner.nickname, // 소유자 닉네임을 그룹 닉네임으로 사용
+        nickname: group.owner.nickname,
         photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         recommendCount: group._count.groupRecommend,
-        participantCount: group._count.Participants, // 대문자 P로 수정
-        createdAt: group.createdAt, // 추가
+        participantCount: group._count.participants, // 소문자로 수정
+        createdAt: group.createdAt,
       }));
 
       // 페이지네이션 정보
@@ -142,14 +142,14 @@ class GroupController {
         },
       });
     } catch (error) {
-      next(error); // Global Error Handler로 전달
+      next(error);
     }
   }
 
   /**
    * 그룹 상세 조회
    */
-  async getGroupById(req, res, next) {
+  static async getGroupById(req, res, next) {
     try {
       const { id } = req.params;
       
@@ -173,8 +173,8 @@ class GroupController {
           badge: true,
           goalRep: true,
           discordInviteUrl: true,
-          createdAt: true, // 추가
-          updatedAt: true, // 추가
+          createdAt: true,
+          updatedAt: true,
           // Tag는 직접 1:N 관계로 조회
           tag: {
             select: {
@@ -191,8 +191,8 @@ class GroupController {
           // 참여자 수를 한 번에 조회
           _count: {
             select: {
-              Participants: true, // 대문자 P로 수정
-              groupRecommend: true, // 추천 수도 추가
+              participants: true, // 소문자로 수정
+              groupRecommend: true,
             },
           },
         },
@@ -209,17 +209,17 @@ class GroupController {
         id: group.id,
         name: group.name,
         description: group.description,
-        nickname: group.owner.nickname, // 소유자 닉네임을 그룹 닉네임으로 사용
+        nickname: group.owner.nickname,
         photoUrl: group.photoUrl,
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        participantCount: group._count.Participants, // 대문자 P로 수정
-        recommendCount: group._count.groupRecommend, // 추천 수 추가
+        participantCount: group._count.participants, // 소문자로 수정
+        recommendCount: group._count.groupRecommend,
         discordInviteUrl: group.discordInviteUrl,
         owner: group.owner,
-        createdAt: group.createdAt, // 추가
-        updatedAt: group.updatedAt, // 추가
+        createdAt: group.createdAt,
+        updatedAt: group.updatedAt,
       };
 
       res.status(200).json({
@@ -227,9 +227,10 @@ class GroupController {
         data: groupDetail,
       });
     } catch (error) {
-      next(error); // Global Error Handler로 전달
+      next(error);
     }
   }
 }
 
-module.exports = new GroupController();
+// 클래스 자체를 export (인스턴스가 아닌)
+module.exports = GroupController;
