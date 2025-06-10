@@ -339,11 +339,18 @@ paths:
     patch:
       summary: 그룹 수정
       tags: [그룹]
-      content:
-        application/json:
+      parameters:
+        - name: groupId
+          in: path
+          required: true
           schema:
-            type: object
-            properties:
+            type: string
+      requestBody:
+        application/json:
+        required: true
+        content:
+          application/json:
+            schema:
               type: object
               properties:
                 name:
@@ -375,105 +382,106 @@ paths:
                 type: string
                 description: 그룹 소유자 비밀번호
       responses:
-        '200':
-          description: 그룹 수정 성공
-          content:
-            application/json:
-              schema:
+  '200':
+    description: 그룹 수정 성공
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 그룹 ID
+            name:
+              type: string
+              description: 그룹 이름
+            description:
+              type: string
+              description: 그룹 설명
+            photoUrl:
+              type: string
+              description: 그룹 사진 URL
+            goalRep:
+              type: integer
+              description: 그룹 목표 반복 횟수
+            discordWebhookUrl:
+              type: string
+              description: Discord 웹훅 URL
+            discordInviteUrl:
+              type: string
+              description: Discord 초대 URL
+            likeCount:
+              type: integer
+              description: 좋아요 수
+            tags:
+              type: array
+              items:
+                type: string
+            owner:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 소유자 ID
+                nickname:
+                  type: string
+                  description: 소유자 닉네임
+                createdAt:
+                  type: integer
+                  description: 생성 시간 (timestamp)
+                updatedAt:
+                  type: integer
+                  description: 수정 시간 (timestamp)
+            participants:
+              type: array
+              items:
                 type: object
                 properties:
                   id:
                     type: integer
-                    description: 그룹 ID
-                  name:
+                    description: 참여자 ID
+                  nickname:
                     type: string
-                    description: 그룹 이름
-                  description:
-                    type: string
-                    description: 그룹 설명
-                  photoUrl:
-                    type: string
-                    description: 그룹 사진 URL
-                  goalRep:
-                    type: integer
-                    description: 그룹 목표 반복 횟수
-                  discordWebhookUrl:
-                    type: string
-                    description: Discord 웹훅 URL
-                  discordInviteUrl:
-                    type: string
-                    description: Discord 초대 URL
-                  likeCount:
-                    type: integer
-                    description: 좋아요 수
-                  tags:
-                    type: array
-                    items:
-                      type: string
-                  owner:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        description: 소유자 ID
-                      nickname:
-                        type: string
-                        description: 소유자 닉네임
-                      createdAt:
-                        type: integer
-                        description: 생성 시간 (timestamp)
-                      updatedAt:
-                        type: integer
-                        description: 수정 시간 (timestamp)
-                  participants:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: 참여자 ID
-                        nickname:
-                          type: string
-                          description: 참여자 닉네임
-                        createdAt:
-                          type: integer
-                          description: 생성 시간 (timestamp)
-                        updatedAt:
-                          type: integer
-                          description: 수정 시간 (timestamp)
+                    description: 참여자 닉네임
                   createdAt:
                     type: integer
-                    description: 그룹 생성 시간 (timestamp)
+                    description: 생성 시간 (timestamp)
                   updatedAt:
                     type: integer
-                    description: 그룹 수정 시간 (timestamp)
-                  badges:
-                    type: array
-                    items:
-                      type: string
-                    description: 그룹 배지 목록
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 오류 메시지
-        '401':
-          description: 잘못된 password
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 오류 메시지
+                    description: 수정 시간 (timestamp)
+            createdAt:
+              type: integer
+              description: 그룹 생성 시간 (timestamp)
+            updatedAt:
+              type: integer
+              description: 그룹 수정 시간 (timestamp)
+            badges:
+              type: array
+              items:
+                type: string
+              description: 그룹 배지 목록
 
+  '400':
+    description: 잘못된 요청
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: 오류 메시지
+
+  '401':
+    description: 잘못된 password
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: 오류 메시지
 
 # 그룹 삭제
     delete:
@@ -504,15 +512,19 @@ paths:
           required: true
           schema:
             type: string
-      query:
-        type: object
-        properties:
-          nickname:
-            type: string
-            description: 참여자 닉네임
-          password:
-            type: string
-            description: 참여자 비밀번호
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  description: 참여자 닉네임
+                password:
+                  type: string
+                  description: 참여자 비밀번호
       responses:
         '201':
           description: 참여 성공
@@ -613,15 +625,7 @@ paths:
           required: true
           schema:
             type: string
-      query:
-        type: object
-        properties:
-          nickname:
-            type: string
-            description: 참여자 닉네임
-          password:
-            type: string
-            description: 참여자 비밀번호
+     
       responses:
         '204':
           description: 참여 취소 성공
@@ -1011,8 +1015,9 @@ paths:
               type: object
               properties:
                 files:
-                  type: 
+                  type: string
                   format: binary
+                  description: 업로드할 이미지 파일
       responses:
         '201':
           description: 이미지 업로드 성공
