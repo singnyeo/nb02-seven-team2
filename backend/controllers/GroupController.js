@@ -19,6 +19,13 @@ class GroupController {
       const limitNum = parseInt(limit, 10);
       const offset = (pageNum - 1) * limitNum;
 
+      // 입력값 검증
+      if (pageNum < 1 || limitNum < 1) {
+        const error = new Error('페이지와 limit은 1 이상이어야 합니다.');
+        error.status = 400;
+        throw error;
+      }
+
       // 검색 조건
       const whereCondition = search
         ? {
@@ -44,7 +51,7 @@ class GroupController {
         case 'participants':
           orderBy = [
             {
-              participants: {
+              Participants: {  // 대문자 P로 수정
                 _count: 'desc',
               },
             },
@@ -76,9 +83,11 @@ class GroupController {
             photoUrl: true,
             badge: true,
             goalRep: true,
+            createdAt: true, // 추가: 생성일시
             // 소유자 닉네임 조회
             owner: {
               select: {
+                id: true,
                 nickname: true,
               },
             },
@@ -91,7 +100,7 @@ class GroupController {
             // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
-                participants: true, // 참여자 수
+                Participants: true, // 대문자 P로 수정
                 groupRecommend: true, // 추천 수
               },
             },
@@ -109,7 +118,8 @@ class GroupController {
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         recommendCount: group._count.groupRecommend,
-        participantCount: group._count.participants,
+        participantCount: group._count.Participants, // 대문자 P로 수정
+        createdAt: group.createdAt, // 추가
       }));
 
       // 페이지네이션 정보
@@ -142,10 +152,18 @@ class GroupController {
   async getGroupById(req, res, next) {
     try {
       const { id } = req.params;
+      
+      // ID 검증
+      const groupId = parseInt(id, 10);
+      if (isNaN(groupId) || groupId < 1) {
+        const error = new Error('유효하지 않은 그룹 ID입니다.');
+        error.status = 400;
+        throw error;
+      }
 
       const group = await prisma.group.findUnique({
         where: {
-          id: parseInt(id, 10),
+          id: groupId,
         },
         select: {
           id: true,
@@ -155,6 +173,8 @@ class GroupController {
           badge: true,
           goalRep: true,
           discordInviteUrl: true,
+          createdAt: true, // 추가
+          updatedAt: true, // 추가
           // Tag는 직접 1:N 관계로 조회
           tag: {
             select: {
@@ -171,7 +191,8 @@ class GroupController {
           // 참여자 수를 한 번에 조회
           _count: {
             select: {
-              participants: true,
+              Participants: true, // 대문자 P로 수정
+              groupRecommend: true, // 추천 수도 추가
             },
           },
         },
@@ -193,9 +214,12 @@ class GroupController {
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        participantCount: group._count.participants,
+        participantCount: group._count.Participants, // 대문자 P로 수정
+        recommendCount: group._count.groupRecommend, // 추천 수 추가
         discordInviteUrl: group.discordInviteUrl,
         owner: group.owner,
+        createdAt: group.createdAt, // 추가
+        updatedAt: group.updatedAt, // 추가
       };
 
       res.status(200).json({
