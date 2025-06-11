@@ -5,13 +5,13 @@ const router = express.Router();
 
 /**
  * 그룹 목록 조회 API
- * GET /api/groups
+ * GET /groups
  */
 router.get('/', GroupController.getGroups);
 
 /**
  * 그룹 상세 조회 API
- * GET /api/groups/:id
+ * GET /groups/:id
  */
 router.get('/:id', GroupController.getGroupById);
 

@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
 const groupRoutes = require('./routes/groups');
-app.use('/api/groups', groupRoutes);
+app.use('/groups', groupRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {
