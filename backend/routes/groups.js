@@ -1,5 +1,5 @@
 const express = require('express');
-const GroupController = require('../controllers/GroupController');
+const GroupController = require('../controllers/group-controller'); // PascalCase → kebab-case로 변경
 
 const router = express.Router();
 

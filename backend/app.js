@@ -3,8 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// 미들웨어 import
-const errorHandler = require('./middlewares/errorHandler');
+// 미들웨어 import - camelCase → kebab-case로 변경
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 
