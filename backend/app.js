@@ -7,6 +7,7 @@ require('dotenv').config();
 const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
+const { STATUS_CODE } = require('./utils/const');
 
 // 기본 미들웨어 설정
 app.use(cors());
@@ -46,6 +47,11 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
   process.exit(1);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send('서버 에러 발생!');
 });
 
 const PORT = process.env.PORT || 3000;
