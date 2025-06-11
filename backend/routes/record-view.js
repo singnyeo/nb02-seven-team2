@@ -3,24 +3,27 @@ const prisma = require('../utils/db');
 const router = express.Router({ mergeParams: true });
 const { startOfDay, subDays } = require('date-fns');
 
-router.get('/rank', async (req, res) => {
+router.get('/rank', async (req, res, next) => {
   const groupId = Number(req.params.groupId);
   const { duration, limit } = req.query;
 
   if (!Number.isInteger(groupId)) {
-    console.log('groupId 정수 아님', req.params.groupId);
-    return res.status(400).json({ message: 'groupId는 정수이여야 합니다.' });
+    const error = new Error('[백엔드] groupId는 정수여야 합니다.');
+    error.status = 400;
+    return next(error);
   }
 
   const now = new Date();
-
-  const fromDate = duration === 'monthly' ? startOfDay(subDays(now, 30)) : startOfDay(subDays(now, 7));
+  const fromDate =
+    duration === 'monthly'
+      ? startOfDay(subDays(now, 30))
+      : startOfDay(subDays(now, 7));
 
   try {
     const records = await prisma.exerciseRecord.findMany({
       where: {
         createdAt: { gte: fromDate },
-        user: { groupId: groupId },
+        user: { groupId: groupId }, 
       },
       select: {
         userId: true,
@@ -49,7 +52,6 @@ router.get('/rank', async (req, res) => {
 
     rankList.sort((a, b) => b.recordTime - a.recordTime);
 
-
     const page = Number(req.query.page) || 1;
     const pageSize = Number(limit) || 10;
     const pagedRankList = rankList.slice((page - 1) * pageSize, page * pageSize);
@@ -57,8 +59,61 @@ router.get('/rank', async (req, res) => {
     res.json(pagedRankList);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: '서버 오류 발생' });
+    next(error);
+  }
+});
+
+router.get('/record/:recordId', async (req, res, next) => {
+  const groupId = Number(req.params.groupId);
+  const recordId = Number(req.params.recordId);
+
+  if (!Number.isInteger(groupId)) {
+    return res.status(400).json({ message : 'groupId must be integer' });
+  }
+
+  try {
+    const record = await prisma.exerciseRecord.findFirst({
+      where: {
+        id: recordId,
+        user: {
+          participantedGroups: {
+            some: {
+              groupId: groupId,
+            },
+          },
+        },
+      },
+      include: {
+        photo: {
+          select: { url: true },
+        },
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+          },
+        },
+      },
+    });
+
+    if (!record || !record.user) {
+      return res.status(404).json({ message: "기록 또는 작성자를 찾을 수 없습니다." });
+    }
+
+    res.json({
+      id: record.id,
+      exerciseType: record.sport,
+      description: record.description,
+      time: record.duration,
+      distance: record.distance,
+      photos: record.photo.map(p => p.url),
+      author: {
+        id: record.user.id,
+        nickname: record.user.nickname,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
