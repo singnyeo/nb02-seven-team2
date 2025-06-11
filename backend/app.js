@@ -1,8 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+const groupRoutes = require('./routes/groups');
 
 const app = express();
 
+app.use(express.json());
+app.use('/groups', groupRoutes);
 app.use(cors());
 app.use(express.json());
 
