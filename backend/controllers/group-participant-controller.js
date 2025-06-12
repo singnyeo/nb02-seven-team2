@@ -21,7 +21,7 @@ class GroupParticipantController {
    *
    * @param {number} req.params.groupId - 그룹 ID
    * @param {string} req.body.nickname - 참여자 닉네임
-   * @param {string} req.body.password - 그룹 생성자의 비밀번호
+   * @param {string} req.body.password - 참여자의 비밀번호
    */
   static async postGroupParticipant(req, res) {
     const groupId = Number(req.params.groupId);
@@ -114,7 +114,7 @@ class GroupParticipantController {
  *
  * @param {number} req.params.groupId - 그룹 ID
  * @param {string} req.body.nickname - 참여자 닉네임
- * @param {string} req.body.password - 그룹 생성자의 비밀번호
+ * @param {string} req.body.password - 참여자의 비밀번호
  */
   static async deleteGroupParticipant(req, res) {
     const groupId = Number(req.params.groupId);
