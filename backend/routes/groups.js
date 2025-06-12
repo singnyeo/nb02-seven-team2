@@ -19,19 +19,18 @@ router.get('/:groupId', groupController.getGroupById);
  * 그룹 생성 API
  * POST /groups
  */
-router.post('/', GroupController.postGroup);
+router.post('/', groupController.postGroup);
 
 /**
  * 그룹 수정 API
- * PAtCH /groups/:id
+ * PATCH /groups/:id
  */
-router.patch('/:id', GroupController.patchGroup);
+router.patch('/:id', groupController.patchGroup);
 
 /**
  * 그룹 삭제 API
- * EELETE /groups/:id
+ * DELETE /groups/:id
  */
-router.delete('/:id', GroupController.deleteGroup);
+router.delete('/:id', groupController.deleteGroup);
 
 module.exports = router;
-
