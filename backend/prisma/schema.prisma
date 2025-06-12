@@ -13,6 +13,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 model User {
   id             Int              @id @default(autoincrement())
   nickname       String           @unique
@@ -29,6 +31,7 @@ model User {
   @@map("users")
 }
 
+
 model Group {
   id                Int              @id @default(autoincrement())
   name              String           @unique
@@ -37,6 +40,17 @@ model Group {
   goalRep           Int
   discordWebhookUrl String
   discordInviteUrl  String
+
+  tag               Tag[]
+  owner             User             @relation("UserOwnedGroups", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId           Int
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  badge             String[]
+  rank              Rank[]
+  groupRecommend    GroupRecommend[]
+  Participants      Participant[]
+
   badge             String[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -73,12 +87,21 @@ model Participant {
   @@index([userId])
   @@index([groupId])
   @@map("participants")
+
 }
 
 model GroupRecommend {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@unique([groupId, userId])
+
   groupId   Int
   userId    Int
   
@@ -91,6 +114,7 @@ model GroupRecommend {
   @@index([groupId])
   @@index([userId])
   @@map("group_recommends")
+
 }
 
 model Tag {
@@ -98,6 +122,32 @@ model Tag {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  nickname       String           @unique
+  password       String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  exerciseRecord ExerciseRecord[]
+  groupRecommend GroupRecommend[]
+  ownedGroups    Group[]          @relation("UserOwnedGroups")
+  Participant    Participant[]
+}
+
+model Participant {
+  id      Int   @id @default(autoincrement())
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+  group   Group @relation(fields: [groupId], references: [id])
+  groupId Int
+
+  @@unique([userId, groupId])
+
   groupId   Int
   
   // 관계
@@ -107,10 +157,23 @@ model Tag {
   @@index([groupId])
   @@index([name])
   @@map("tags")
+
 }
 
 model ExerciseRecord {
   id          Int      @id @default(autoincrement())
+
+  nickname    String
+  sport       String
+  description String
+  duration    Int
+  distance    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  photo       Photo[]
+
   nickname    String   // 이 필드가 필요한지 검토 필요 (User.nickname과 중복)
   sport       String
   description String
@@ -129,12 +192,23 @@ model ExerciseRecord {
   @@index([createdAt])
   @@index([sport])
   @@map("exercise_records")
+
 }
 
 model Rank {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       Int      @unique
+  weeklyRanked  Int[] // 0번 부터 기록 많은 유저 id 등록
+  monthlyRanked Int[] // 0번 부터 기록 많은 유저 id 등록
+}
+
+model Photo {
+  id               Int            @id
+
   groupId       Int      @unique
   weeklyRanked  Int[]    // 0번 부터 기록 많은 유저 id 등록
   monthlyRanked Int[]    // 0번 부터 기록 많은 유저 id 등록
@@ -147,10 +221,15 @@ model Rank {
 
 model Photo {
   id               Int            @id @default(autoincrement())
+
   url              String
   photoTag         PhotoTag
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  exerciseRecord   ExerciseRecord @relation(fields: [exerciseRecordId], references: [id])
+  exerciseRecordId Int
+
   exerciseRecordId Int
   
   // 관계
@@ -160,6 +239,7 @@ model Photo {
   @@index([exerciseRecordId])
   @@index([photoTag])
   @@map("photos")
+
 }
 
 enum PhotoTag {
