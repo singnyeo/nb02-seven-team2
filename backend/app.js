@@ -4,6 +4,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // 미들웨어 import
+
 const errorHandler = require('./middlewares/error-handler');
 
 // 라우터 import
@@ -19,6 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
+
+const groupRoutes = require('./routes/groups');
+
 app.use('/groups', groupRoutes);
 
 // 기본 라우트
@@ -60,6 +64,3 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
-});
-
-module.exports = app;
