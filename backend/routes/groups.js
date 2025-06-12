@@ -1,5 +1,8 @@
 const express = require('express');
 const groupController = require('../controllers/group-controller');
+const GroupParticipantController = require('../controllers/group-participant-controller');
+
+const groupDataValidation = require('../middlewares/validation-check');
 
 const router = express.Router();
 
@@ -16,6 +19,7 @@ router.get('/', groupController.getGroups);
 router.get('/:groupId', groupController.getGroupById);
 
 
+
 /**
  * 그룹 추천 API (좋아요)
  * POST /groups/:groupId/likes
@@ -30,3 +34,11 @@ router.delete('/:groupId/likes', groupController.unrecommendGroup);
 
 
 module.exports = router;
+
+router
+  .route('/:groupId/participants')
+  .post(groupDataValidation, GroupParticipantController.postGroupParticipant)// 그룹 참여 API
+  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant);// 그룹 참여 취소 API
+
+module.exports = router;
+
