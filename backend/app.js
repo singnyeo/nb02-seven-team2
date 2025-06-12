@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
+const errorHandler = require('./middlewares/errorHandler');
 const recordViewRouter = require('./routes/record-view');
 
 const app = express();
@@ -11,15 +12,12 @@ app.use(express.json());
 app.use('/groups/:groupId', recordViewRouter);
 
 app.get('/', (req, res) => {
-  res.send('서버가 정상적으로 실행 중');
+  res.send('[백엔드] 서버 실행 완료');
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('서버 에러 발생!');
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`서버 실행 중 http://localhost:${PORT}`);
+  console.log(`[백엔드] 서버 실행 중 http://localhost:${PORT}`);
 });
