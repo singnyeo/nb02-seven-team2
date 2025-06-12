@@ -1,5 +1,5 @@
 const express = require('express');
-const GroupController = require('../controllers/group-controller'); // PascalCase → kebab-case로 변경
+const groupController = require('../controllers/group-controller');
 
 const router = express.Router();
 
@@ -7,12 +7,12 @@ const router = express.Router();
  * 그룹 목록 조회 API
  * GET /groups
  */
-router.get('/', GroupController.getGroups);
+router.get('/', groupController.getGroups);
 
 /**
  * 그룹 상세 조회 API
- * GET /groups/:id
+ * GET /groups/:groupId
  */
-router.get('/:id', GroupController.getGroupById);
+router.get('/:groupId', groupController.getGroupById);
 
 module.exports = router;

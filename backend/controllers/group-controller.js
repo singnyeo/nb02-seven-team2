@@ -5,8 +5,9 @@ const prisma = new PrismaClient();
 class GroupController {
   /**
    * 그룹 목록 조회
+   * GET /groups
    */
-  static async getGroups(req, res, next) {
+  async getGroups(req, res, next) {
     try {
       const {
         page = 1,
@@ -51,7 +52,7 @@ class GroupController {
         case 'participants':
           orderBy = [
             {
-              participantedGroups: {  // participants → participantedGroups로 변경
+              participantedGroups: {
                 _count: 'desc',
               },
             },
@@ -67,7 +68,7 @@ class GroupController {
           break;
       }
 
-      // 전체 개수와 그룹 목록을 한 번에 조회 (ORM 고급 활용)
+      // 전체 개수와 그룹 목록을 한 번에 조회
       const [totalCount, groups] = await Promise.all([
         prisma.group.count({
           where: whereCondition,
@@ -100,7 +101,7 @@ class GroupController {
             // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
-                participantedGroups: true, // participants → participantedGroups로 변경
+                participantedGroups: true,
                 groupRecommend: true,
               },
             },
@@ -118,7 +119,7 @@ class GroupController {
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         recommendCount: group._count.groupRecommend,
-        participantCount: group._count.participantedGroups, // participants → participantedGroups로 변경
+        participantCount: group._count.participantedGroups,
         createdAt: group.createdAt,
       }));
 
@@ -148,14 +149,15 @@ class GroupController {
 
   /**
    * 그룹 상세 조회
+   * GET /groups/{groupId}
    */
-  static async getGroupById(req, res, next) {
+  async getGroupById(req, res, next) {
     try {
-      const { id } = req.params;
+      const { groupId } = req.params;
       
       // ID 검증
-      const groupId = parseInt(id, 10);
-      if (isNaN(groupId) || groupId < 1) {
+      const groupIdInt = parseInt(groupId, 10);
+      if (isNaN(groupIdInt) || groupIdInt < 1) {
         const error = new Error('유효하지 않은 그룹 ID입니다.');
         error.status = 400;
         throw error;
@@ -163,7 +165,7 @@ class GroupController {
 
       const group = await prisma.group.findUnique({
         where: {
-          id: groupId,
+          id: groupIdInt,
         },
         select: {
           id: true,
@@ -191,7 +193,7 @@ class GroupController {
           // 참여자 수를 한 번에 조회
           _count: {
             select: {
-              participantedGroups: true, // participants → participantedGroups로 변경
+              participantedGroups: true,
               groupRecommend: true,
             },
           },
@@ -214,7 +216,7 @@ class GroupController {
         badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        participantCount: group._count.participantedGroups, // participants → participantedGroups로 변경
+        participantCount: group._count.participantedGroups,
         recommendCount: group._count.groupRecommend,
         discordInviteUrl: group.discordInviteUrl,
         owner: group.owner,
@@ -232,5 +234,4 @@ class GroupController {
   }
 }
 
-// 클래스 자체를 export (인스턴스가 아닌)
-module.exports = GroupController;
+module.exports = new GroupController();
