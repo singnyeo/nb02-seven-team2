@@ -61,7 +61,7 @@ class GroupController {
         where: { groupId: groupIdInt },
       });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         message: '그룹을 추천했습니다.',
         data: {
@@ -129,14 +129,7 @@ class GroupController {
         where: { groupId: groupIdInt },
       });
 
-      res.status(200).json({
-        success: true,
-        message: '그룹 추천을 취소했습니다.',
-        data: {
-          groupId: groupIdInt,
-          recommendCount,
-        },
-      });
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
