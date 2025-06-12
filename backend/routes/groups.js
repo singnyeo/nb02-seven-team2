@@ -15,6 +15,7 @@ router.get('/', groupController.getGroups);
  */
 router.get('/:groupId', groupController.getGroupById);
 
+
 /**
  * 그룹 추천 API (좋아요)
  * POST /groups/:groupId/likes
@@ -26,5 +27,6 @@ router.post('/:groupId/likes', groupController.recommendGroup);
  * DELETE /groups/:groupId/likes
  */
 router.delete('/:groupId/likes', groupController.unrecommendGroup);
+
 
 module.exports = router;

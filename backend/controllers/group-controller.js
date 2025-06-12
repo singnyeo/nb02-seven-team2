@@ -247,6 +247,7 @@ class GroupController {
     }
   }
 
+
   /**
    * 그룹 추천 (좋아요)
    * POST /groups/{groupId}/likes
@@ -378,6 +379,7 @@ class GroupController {
       next(error);
     }
   }
+
 }
 
 module.exports = new GroupController();

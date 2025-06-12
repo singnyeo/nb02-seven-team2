@@ -13,6 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+model User {
+  id             Int              @id @default(autoincrement())
+  nickname       String           @unique
+  password       String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  
+  // 관계
+  exerciseRecord ExerciseRecord[]
+  groupRecommend GroupRecommend[]
+  ownedGroups    Group[]          @relation("GroupOwner")
+  participants   Participant[]    // 참여하는 그룹들 (중간 테이블을 통한 다대다 관계)
+  
+  @@map("users")
+}
+
+
 model Group {
   id                Int              @id @default(autoincrement())
   name              String           @unique
@@ -21,6 +40,7 @@ model Group {
   goalRep           Int
   discordWebhookUrl String
   discordInviteUrl  String
+
   tag               Tag[]
   owner             User             @relation("UserOwnedGroups", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId           Int
@@ -30,18 +50,71 @@ model Group {
   rank              Rank[]
   groupRecommend    GroupRecommend[]
   Participants      Participant[]
+
+  badge             String[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  userId            Int              // 소유자 ID (외래키)
+  
+  // 관계
+  owner             User             @relation("GroupOwner", fields: [userId], references: [id], onDelete: Cascade)
+  tag               Tag[]
+  rank              Rank[]
+  groupRecommend    GroupRecommend[]
+  participants      Participant[]    // 참여자들 (중간 테이블을 통한 다대다 관계)
+  
+  // 인덱스
+  @@index([userId])
+  @@index([name])
+  @@index([createdAt])
+  @@map("groups")
+}
+
+model Participant {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  groupId Int
+  
+  // 참여 시간 추가 (언제 참여했는지 알 수 있음)
+  joinedAt DateTime @default(now())
+  
+  // 관계
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  // 복합 유니크 제약 (한 사용자는 같은 그룹에 중복 참여 불가)
+  @@unique([userId, groupId])
+  @@index([userId])
+  @@index([groupId])
+  @@map("participants")
+
 }
 
 model GroupRecommend {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
 
   @@unique([groupId, userId])
+
+  groupId   Int
+  userId    Int
+  
+  // 관계
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 복합 유니크 제약 (한 사용자는 같은 그룹을 중복 추천 불가)
+  @@unique([userId, groupId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("group_recommends")
+
 }
 
 model Tag {
@@ -49,6 +122,7 @@ model Tag {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int
 }
@@ -73,10 +147,22 @@ model Participant {
   groupId Int
 
   @@unique([userId, groupId])
+
+  groupId   Int
+  
+  // 관계
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  // 인덱스
+  @@index([groupId])
+  @@index([name])
+  @@map("tags")
+
 }
 
 model ExerciseRecord {
   id          Int      @id @default(autoincrement())
+
   nickname    String
   sport       String
   description String
@@ -87,12 +173,33 @@ model ExerciseRecord {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   photo       Photo[]
+
+  nickname    String   // 이 필드가 필요한지 검토 필요 (User.nickname과 중복)
+  sport       String
+  description String
+  duration    Int      // 운동 시간 (분 단위)
+  distance    Int      // 거리 (미터 단위)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  
+  // 관계
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo Photo[]
+  
+  // 인덱스
+  @@index([userId])
+  @@index([createdAt])
+  @@index([sport])
+  @@map("exercise_records")
+
 }
 
 model Rank {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
   group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       Int      @unique
   weeklyRanked  Int[] // 0번 부터 기록 많은 유저 id 등록
@@ -101,12 +208,38 @@ model Rank {
 
 model Photo {
   id               Int            @id
+
+  groupId       Int      @unique
+  weeklyRanked  Int[]    // 0번 부터 기록 많은 유저 id 등록
+  monthlyRanked Int[]    // 0번 부터 기록 많은 유저 id 등록
+  
+  // 관계
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  @@map("ranks")
+}
+
+model Photo {
+  id               Int            @id @default(autoincrement())
+
   url              String
   photoTag         PhotoTag
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
   exerciseRecord   ExerciseRecord @relation(fields: [exerciseRecordId], references: [id])
   exerciseRecordId Int
+
+  exerciseRecordId Int
+  
+  // 관계
+  exerciseRecord ExerciseRecord @relation(fields: [exerciseRecordId], references: [id], onDelete: Cascade)
+  
+  // 인덱스
+  @@index([exerciseRecordId])
+  @@index([photoTag])
+  @@map("photos")
+
 }
 
 enum PhotoTag {
