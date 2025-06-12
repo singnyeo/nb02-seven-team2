@@ -1,8 +1,9 @@
 const express = require('express');
+const RecordViewController = require('../controllers/records-view-controller');
+
 const router = express.Router({ mergeParams: true });
-const RecordViewController = require('../controllers/record-view-controller');
 
 router.get('/rank', RecordViewController.getRank);
-router.get('/record/:recordId', RecordViewController.getRecordById);
+router.get('/records/:recordId', RecordViewController.getRecordById);
 
 module.exports = router;

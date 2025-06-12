@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const errorHandler = require('./middlewares/errorHandler');
-const recordViewRouter = require('./routes/record-view');
+const recordViewRouter = require('./routes/records-view');
 
 const app = express();
 
