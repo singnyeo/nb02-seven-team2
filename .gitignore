@@ -73,3 +73,7 @@ build
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/backend/mock.js
+
+/backend/seed.js
