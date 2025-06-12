@@ -3,8 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// 미들웨어 import
-const errorHandler = require('./middlewares/errorHandler');
+// 미들웨어 import (kebab-case로 변경)
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 
@@ -14,9 +14,9 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 라우터 연결
+// 라우터 연결 (/api 접두사 제거)
 const groupRoutes = require('./routes/groups');
-app.use('/api/groups', groupRoutes);
+app.use('/groups', groupRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {

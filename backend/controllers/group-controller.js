@@ -4,11 +4,12 @@ const prisma = new PrismaClient();
 
 class GroupController {
   /**
-   * 그룹 추천
+   * 그룹 추천 (좋아요)
+   * POST /groups/{groupId}/likes
    */
   async recommendGroup(req, res, next) {
     try {
-      const { id } = req.params;
+      const { groupId } = req.params;
       const { userId } = req.body;
 
       // 필수 값 검증
@@ -18,19 +19,18 @@ class GroupController {
         throw error;
       }
 
-      const groupId = parseInt(id, 10);
+      const groupIdInt = parseInt(groupId, 10);
       const userIdInt = parseInt(userId, 10);
 
       // 그룹 존재 여부와 기존 추천 여부를 한 번에 확인
       const [group, existingRecommend] = await Promise.all([
         prisma.group.findUnique({
-          where: { id: groupId },
+          where: { id: groupIdInt },
           select: { id: true },
         }),
-        // 복합 유니크 키 대신 findFirst 사용 (스키마에 @@unique가 없는 경우)
         prisma.groupRecommend.findFirst({
           where: {
-            groupId,
+            groupId: groupIdInt,
             userId: userIdInt,
           },
         }),
@@ -48,24 +48,25 @@ class GroupController {
         throw error;
       }
 
-      // 추천 생성 후 추천 수 조회를 한 번에 처리
-      const [newRecommend, recommendCount] = await Promise.all([
-        prisma.groupRecommend.create({
-          data: {
-            groupId,
-            userId: userIdInt,
-          },
-        }),
-        prisma.groupRecommend.count({
-          where: { groupId },
-        }),
-      ]);
+      // 추천 생성
+      await prisma.groupRecommend.create({
+        data: {
+          groupId: groupIdInt,
+          userId: userIdInt,
+        },
+      });
+
+      // 생성 후 현재 추천 수 조회
+      const recommendCount = await prisma.groupRecommend.count({
+        where: { groupId: groupIdInt },
+      });
 
       res.status(201).json({
         success: true,
         message: '그룹을 추천했습니다.',
         data: {
-          recommendCount: recommendCount + 1, // 방금 생성한 것 포함 (count는 생성 전 상태)
+          groupId: groupIdInt,
+          recommendCount,
         },
       });
     } catch (error) {
@@ -74,11 +75,12 @@ class GroupController {
   }
 
   /**
-   * 그룹 추천 취소
+   * 그룹 추천 취소 (좋아요 취소)
+   * DELETE /groups/{groupId}/likes
    */
   async unrecommendGroup(req, res, next) {
     try {
-      const { id } = req.params;
+      const { groupId } = req.params;
       const { userId } = req.body;
 
       // 필수 값 검증
@@ -88,18 +90,18 @@ class GroupController {
         throw error;
       }
 
-      const groupId = parseInt(id, 10);
+      const groupIdInt = parseInt(groupId, 10);
       const userIdInt = parseInt(userId, 10);
 
       // 그룹 존재 여부와 추천 여부를 한 번에 확인
       const [group, existingRecommend] = await Promise.all([
         prisma.group.findUnique({
-          where: { id: groupId },
+          where: { id: groupIdInt },
           select: { id: true },
         }),
         prisma.groupRecommend.findFirst({
           where: {
-            groupId,
+            groupId: groupIdInt,
             userId: userIdInt,
           },
         }),
@@ -124,13 +126,14 @@ class GroupController {
 
       // 삭제 후 현재 추천 수 조회
       const recommendCount = await prisma.groupRecommend.count({
-        where: { groupId },
+        where: { groupId: groupIdInt },
       });
 
       res.status(200).json({
         success: true,
         message: '그룹 추천을 취소했습니다.',
         data: {
+          groupId: groupIdInt,
           recommendCount,
         },
       });
