@@ -37,45 +37,65 @@ class GroupController {
           }
         : {};
 
-      // 정렬 조건
-      let orderBy;
-      switch (sort) {
-        case 'recommend':
-          orderBy = [
-            {
-              groupRecommend: {
-                _count: 'desc',
+      // 전체 개수 조회
+      const totalCount = await prisma.group.count({
+        where: whereCondition,
+      });
+
+      let groups;
+
+      // recommend 또는 participants로 정렬하는 경우
+      if (sort === 'recommend' || sort === 'participants') {
+        // 모든 그룹을 조회 (검색 조건 적용)
+        const allGroups = await prisma.group.findMany({
+          where: whereCondition,
+          select: {
+            id: true,
+            name: true,
+            photoUrl: true,
+            badge: true,
+            goalRep: true,
+            createdAt: true,
+            owner: {
+              select: {
+                id: true,
+                nickname: true,
               },
             },
-          ];
-          break;
-        case 'participants':
-          orderBy = [
-            {
-              participants: {
-                _count: 'desc',
+            tag: {
+              select: {
+                name: true,
               },
             },
-          ];
-          break;
-        case 'latest':
-        default:
-          orderBy = [
+            _count: {
+              select: {
+                participants: true,
+                groupRecommend: true,
+              },
+            },
+          },
+        });
+
+        // 메모리에서 정렬
+        allGroups.sort((a, b) => {
+          if (sort === 'recommend') {
+            return b._count.groupRecommend - a._count.groupRecommend;
+          } else {
+            return b._count.participants - a._count.participants;
+          }
+        });
+
+        // 페이지네이션 적용
+        groups = allGroups.slice(offset, offset + limitNum);
+      } else {
+        // latest 정렬 (기본)
+        groups = await prisma.group.findMany({
+          where: whereCondition,
+          orderBy: [
             {
               createdAt: 'desc',
             },
-          ];
-          break;
-      }
-
-      // 전체 개수와 그룹 목록을 한 번에 조회
-      const [totalCount, groups] = await Promise.all([
-        prisma.group.count({
-          where: whereCondition,
-        }),
-        prisma.group.findMany({
-          where: whereCondition,
-          orderBy,
+          ],
           skip: offset,
           take: limitNum,
           select: {
@@ -85,20 +105,17 @@ class GroupController {
             badge: true,
             goalRep: true,
             createdAt: true,
-            // 소유자 닉네임 조회
             owner: {
               select: {
                 id: true,
                 nickname: true,
               },
             },
-            // Tag는 직접 1:N 관계로 조회
             tag: {
               select: {
                 name: true,
               },
             },
-            // 연결된 모델의 개수를 한 번에 조회
             _count: {
               select: {
                 participants: true,
@@ -106,8 +123,8 @@ class GroupController {
               },
             },
           },
-        }),
-      ]);
+        });
+      }
 
       // 응답 데이터 가공
       const groupList = groups.map((group) => ({
@@ -177,20 +194,17 @@ class GroupController {
           discordInviteUrl: true,
           createdAt: true,
           updatedAt: true,
-          // Tag는 직접 1:N 관계로 조회
           tag: {
             select: {
               name: true,
             },
           },
-          // 소유자 정보
           owner: {
             select: {
               id: true,
               nickname: true,
             },
           },
-          // 참여자 수를 한 번에 조회
           _count: {
             select: {
               participants: true,
