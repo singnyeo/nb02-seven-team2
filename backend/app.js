@@ -9,7 +9,7 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 
-const recordsRoutes = require('./routes/record');
+const recordsRoutes = require('./routes/records');
 app.use('/groups', recordsRoutes);
 
 app.get('/', (req, res) => {

@@ -12,9 +12,9 @@ class RecordController {
         order = 'desc',
         orderBy = 'createdAt',
         search = '',
+        sport = '', 
       } = req.query;
 
-      // groupId 유효성 검사
       const groupIdNum = Number(groupId);
       if (isNaN(groupIdNum)) {
         return res.status(400).json({ message: 'Invalid groupId' });
@@ -35,8 +35,11 @@ class RecordController {
       const sortOrder = ['asc', 'desc'].includes(order) ? order : 'desc';
 
       const where = {
-        userId: { in: userIds }, // 그룹에 속한 사용자만 조회
-        nickname: { contains: search.trim(), mode: 'insensitive' }, // 검색어 필터링
+        userId: { in: userIds },
+        ...(sport && { sport }), 
+        user: {
+          nickname: { contains: search.trim(), mode: 'insensitive' },
+        },
       };
 
       const pageNum = parseInt(page, 10) || 1;
@@ -51,23 +54,22 @@ class RecordController {
           skip: offset,
           take: limitNum,
           include: {
-            User: { select: { id: true, nickname: true } },
-            Photo: { select: { url: true } },
+            user: { select: { id: true, nickname: true } },
+            photo: { select: { url: true } },
           },
         }),
       ]);
 
-      //데이터 가공
       const data = records.map(record => ({
         id: record.id,
-        sport: record.sport,
+        exerciseType: record.sport,
         description: record.description,
         time: record.duration,
         distance: record.distance,
-        photos: record.Photo.map(p => p.url),
+        photos: record.photo.map(p => p.url),
         author: {
-          id: record.User.id,
-          nickname: record.User.nickname,
+          id: record.user.id,
+          nickname: record.user.nickname,
         },
       }));
 
@@ -77,4 +79,5 @@ class RecordController {
     }
   }
 }
+
 module.exports = new RecordController();
