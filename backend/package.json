@@ -25,13 +25,21 @@
     "express": "^4.21.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
+<<<<<<< HEAD
     "pg": "^8.16.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nodemon": "^3.1.10",
     "prisma": "^6.9.0",
+=======
+    "pg": "^8.16.0",
+>>>>>>> 9a69012 (chore: app.js / package.json 충돌 머지)
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.9.0"
   }
 }
