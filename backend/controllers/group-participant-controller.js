@@ -36,9 +36,6 @@ class GroupParticipantController {
 
       const participant = await findParticipant(nickname, groupId);
 
-      console.log('user:', user);
-      console.log('group:', group);
-      console.log('participant:', participant);
       // 0. 유저 조회
       if (!user) {
         return handleError(res, null, ERROR_MSG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
