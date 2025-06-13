@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -40,6 +34,10 @@ model GroupRecommend {
   groupId   Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
+
+  @@unique([groupId, userId]) // 복합 유니크 제약조건 추가
+
+
 }
 
 model Tag {
@@ -52,25 +50,28 @@ model Tag {
 }
 
 model User {
-  id                 Int              @id @default(autoincrement())
-  nickname           String           @unique
-  password           String
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  exerciseRecord     ExerciseRecord[]
-  groupRecommend     GroupRecommend[]
+
+  id                  Int              @id @default(autoincrement())
+  nickname            String           @unique
+  password            String
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  exerciseRecord      ExerciseRecord[]
+  groupRecommend      GroupRecommend[]
   participantedGroups Participant[]
-  ownedGroups        Group[]
+  ownedGroups         Group[]
 }
 
 model Participant {
-  id        Int   @id @default(autoincrement())
-  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int
-  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([groupId, userId]) // 복합 유니크 제약조건 추가
 }
 
 model ExerciseRecord {
