@@ -1,9 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// 운동 기록 목록 조회
 class RecordController {
-  async getGroupRecords(req, res, next) {
+  /**
+   *  운동 기록 목록 조회
+   */
+  static async getGroupRecords(req, res, next) {
     try {
       const { groupId } = req.params;
       const {
@@ -59,7 +61,7 @@ class RecordController {
           },
         }),
       ]);
-
+      // 응답 데이터 가공공
       const data = records.map(record => ({
         id: record.id,
         exerciseType: record.sport,
@@ -80,4 +82,4 @@ class RecordController {
   }
 }
 
-module.exports = new RecordController();
+module.exports = RecordController;
