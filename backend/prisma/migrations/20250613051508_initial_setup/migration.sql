@@ -10,10 +10,10 @@ CREATE TABLE "Group" (
     "goalRep" INTEGER NOT NULL,
     "discordWebhookUrl" TEXT NOT NULL,
     "discordInviteUrl" TEXT NOT NULL,
-    "ownerId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "badge" TEXT[],
+    "ownerId" INTEGER NOT NULL,
 
     CONSTRAINT "Group_pkey" PRIMARY KEY ("id")
 );
@@ -54,8 +54,10 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Participant" (
     "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
     "groupId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Participant_pkey" PRIMARY KEY ("id")
 );
@@ -63,7 +65,6 @@ CREATE TABLE "Participant" (
 -- CreateTable
 CREATE TABLE "ExerciseRecord" (
     "id" SERIAL NOT NULL,
-    "nickname" TEXT NOT NULL,
     "sport" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
@@ -109,13 +110,13 @@ CREATE UNIQUE INDEX "GroupRecommend_groupId_userId_key" ON "GroupRecommend"("gro
 CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Participant_userId_groupId_key" ON "Participant"("userId", "groupId");
+CREATE UNIQUE INDEX "Participant_groupId_userId_key" ON "Participant"("groupId", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rank_groupId_key" ON "Rank"("groupId");
 
 -- AddForeignKey
-ALTER TABLE "Group" ADD CONSTRAINT "Group_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Group" ADD CONSTRAINT "Group_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GroupRecommend" ADD CONSTRAINT "GroupRecommend_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -127,10 +128,10 @@ ALTER TABLE "GroupRecommend" ADD CONSTRAINT "GroupRecommend_userId_fkey" FOREIGN
 ALTER TABLE "Tag" ADD CONSTRAINT "Tag_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Participant" ADD CONSTRAINT "Participant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Participant" ADD CONSTRAINT "Participant_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Participant" ADD CONSTRAINT "Participant_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Participant" ADD CONSTRAINT "Participant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ExerciseRecord" ADD CONSTRAINT "ExerciseRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -8,16 +8,24 @@ const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 
+const { STATUS_CODE } = require('./utils/const');
+
+
 app.use(cors()); 
 app.use(morgan("combined"));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
+// 라우터 연결
+
 app.use('/groups', groupRoutes);
+
 
 app.get("/", (req, res) => {
   res.json({ message: "운동 인증 커뮤니티 API 서버", version: "1.0.0" });
 });
+
+
 
 // 404
 app.use((req, res) => {

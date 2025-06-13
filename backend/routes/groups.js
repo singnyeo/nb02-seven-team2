@@ -29,10 +29,13 @@ router.post('/:groupId/likes', GroupController.recommendGroup);
  * 그룹 추천 취소 API (좋아요 취소)
  * DELETE /groups/:groupId/likes
  */
-router.delete('/:groupId/likes', GroupController.unrecommendGroup);
+router.delete('/:groupId/likes', GroupController.unrecommendGroup); //GroupController로 대문자 변경
 
 /**
- * 그룹 참여 관련 API
+ * 그룹 참여 API
+ * POST /groups/:groupId/participants
+ * 그룹 참여 취소 API
+ * DELETE /groups/:groupId/participants
  */
 router
   .route('/:groupId/participants')
