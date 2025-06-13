@@ -2,7 +2,7 @@ const { startOfDay, subDays } = require('date-fns');
 const prisma = require('../utils/db');
 
 class RecordViewController {
-  async getRank(req, res, next) {
+  static async getRank(req, res, next) {
     const groupId = Number(req.params.groupId);
     const { duration, limit, page } = req.query;
 
@@ -11,6 +11,14 @@ class RecordViewController {
       error.status = 400;
       return next(error);
     }
+    const groupExists = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { id: true },
+    });
+
+if (!groupExists) {
+  return res.status(404).json({ message: '[백엔드] 해당 그룹을 찾을 수 없습니다.' });
+}
 
     const now = new Date();
     const fromDate = startOfDay(
@@ -73,12 +81,12 @@ class RecordViewController {
     }
   }
 
-  async getRecordById(req, res, next) {
+  static async getRecordById(req, res, next) {
     const groupId = Number(req.params.groupId);
     const recordId = Number(req.params.recordId);
 
     if (!Number.isInteger(groupId)) {
-      return res.status(400).json({ message: 'groupId must be integer' });
+      return res.status(400).json({ message: '[백엔드] groupId는 정수여야 합니다.' });
     }
 
     try {
@@ -106,7 +114,7 @@ class RecordViewController {
       if (!record || !record.user) {
         return res
           .status(404)
-          .json({ message: '기록 또는 작성자를 찾을 수 없습니다.' });
+          .json({ message: '[백엔드] 기록 또는 작성자를 찾을 수 없습니다.' });
       }
 
       return res.json({
@@ -127,4 +135,4 @@ class RecordViewController {
   }
 }
 
-module.exports = new RecordViewController();
+module.exports = RecordViewController;
