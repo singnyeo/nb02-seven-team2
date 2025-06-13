@@ -9,11 +9,15 @@ const errorHandler = require("./middlewares/error-handler");
 const groupRoutes = require("./routes/groups");
 
 const app = express();
+const groupRoutes = require('./routes/groups');
+const { STATUS_CODE } = require('./utils/const');
 
 app.use(cors()); 
 app.use(morgan("combined"));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+app.use('/groups', groupRoutes);
+
 
 // API 라우터
 app.use('/groups', groupRoutes);
