@@ -5,11 +5,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
 
-     "start": "node app.js",
-    "dev": "nodemon app.js",
+    "devstart": "node app.js",
+    "devmon": "nodemon app.js",
 
-    "start": "NODE_ENV=production node app.js",
-    "dev": "NODE_ENV=development nodemon app.js",
+    "prostart": "NODE_ENV=production node app.js",
+    "promon": "NODE_ENV=development nodemon app.js",
 
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
