@@ -1,7 +1,31 @@
-node_modules
-# Keep environment variables out of version control
+# Node modules
+node_modules/
+
+# Env files
 .env
+.env.local
 
-/generated/prisma
+# Logs
+logs/
+*.log
 
-/seed
+# TypeScript cache
+*.tsbuildinfo
+
+# Jest cache
+.jest/
+.vscode-test/
+
+# Coverage
+coverage/
+.nyc_output
+
+# Seed files
+seed.js
+mock.js
+
+# Prisma 
+node_modules/@prisma/client
+generated/
+generated/prisma/
+.prisma/
