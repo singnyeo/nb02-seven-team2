@@ -36,6 +36,8 @@ model GroupRecommend {
   userId    Int
 
   @@unique([groupId, userId]) // 복합 유니크 제약조건 추가
+
+
 }
 
 model Tag {
@@ -48,6 +50,7 @@ model Tag {
 }
 
 model User {
+
   id                  Int              @id @default(autoincrement())
   nickname            String           @unique
   password            String

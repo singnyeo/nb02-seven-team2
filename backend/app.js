@@ -27,7 +27,6 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // 라우터 연결
 
 app.use('/groups', groupRoutes);
