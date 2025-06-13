@@ -6,18 +6,13 @@ require('dotenv').config();
 
 
 // 미들웨어 import
-
-
 const errorHandler = require('./middlewares/error-handler');
-const groupRoutes = require('./routes/groups');
-
-
-
 
 // 라우터 import
 const groupRoutes = require('./routes/groups');
 
 const app = express();
+
 const { STATUS_CODE } = require('./utils/const');
 
 
@@ -40,8 +35,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 라우트 설정
-app.use('/groups', groupRoutes);
+
 
 // 404 에러 핸들러
 app.use('*', (req, res) => {
