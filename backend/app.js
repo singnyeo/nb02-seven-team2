@@ -7,6 +7,8 @@ const errorHandler = require('./middlewares/error-handler');
 const groupRoutes = require('./routes/groups');
 
 const app = express();
+const groupRoutes = require('./routes/groups');
+const { STATUS_CODE } = require('./utils/const');
 
 
 // 미들웨어
@@ -14,6 +16,8 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/groups', groupRoutes);
+
 
 // 라우터
 app.use('/groups', groupRoutes);
@@ -46,10 +50,13 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send('서버 에러 발생!');
+});
+
 // 서버 실행
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`[백엔드] 서버 실행 중 http://localhost:${PORT}`);
 });
-
-module.exports = app;
