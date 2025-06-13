@@ -3,11 +3,14 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
+// 미들웨어 import
 
 const errorHandler = require('./middlewares/error-handler');
 
-const app = express();
+// 라우터 import
 const groupRoutes = require('./routes/groups');
+
+const app = express();
 const { STATUS_CODE } = require('./utils/const');
 
 // 기본 미들웨어 설정
@@ -15,10 +18,11 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/groups', groupRoutes);
 
+// 라우터 연결
 
 const groupRoutes = require('./routes/groups');
+
 app.use('/groups', groupRoutes);
 
 // 기본 라우트

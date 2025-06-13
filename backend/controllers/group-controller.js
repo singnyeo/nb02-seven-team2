@@ -7,7 +7,7 @@ class GroupController {
    * 그룹 목록 조회
    * GET /groups
    */
-  async getGroups(req, res, next) {
+  static async getGroups(req, res, next) {
     try {
       const {
         page = 1,
@@ -168,7 +168,7 @@ class GroupController {
    * 그룹 상세 조회
    * GET /groups/{groupId}
    */
-  async getGroupById(req, res, next) {
+  static async getGroupById(req, res, next) {
     try {
       const { groupId } = req.params;
       
@@ -382,4 +382,5 @@ class GroupController {
 
 }
 
-module.exports = new GroupController();
+// 클래스 자체를 export (인스턴스가 아닌)
+module.exports = GroupController;
