@@ -3,23 +3,16 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-
 const errorHandler = require('./middlewares/error-handler');
+const groupRoutes = require('./routes/groups');
 
 const app = express();
-const groupRoutes = require('./routes/groups');
-const { STATUS_CODE } = require('./utils/const');
 
 // 기본 미들웨어 설정
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/groups', groupRoutes);
-
-
-const groupRoutes = require('./routes/groups');
-app.use('/groups', groupRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {
@@ -28,6 +21,9 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
+
+// 라우트 설정
+app.use('/groups', groupRoutes);
 
 // 404 에러 핸들러
 app.use('*', (req, res) => {
@@ -51,12 +47,8 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send('서버 에러 발생!');
-});
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
+});
