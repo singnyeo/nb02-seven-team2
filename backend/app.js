@@ -3,19 +3,19 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// 미들웨어 import - camelCase → kebab-case로 변경
 const errorHandler = require('./middlewares/error-handler');
+const groupRoutes = require('./routes/groups');
 
 const app = express();
 
-// 기본 미들웨어 설정
+
+// 미들웨어
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 라우터 연결
-const groupRoutes = require('./routes/groups');
+// 라우터
 app.use('/groups', groupRoutes);
 
 // 기본 라우트
@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 에러 핸들러
+// 404 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -34,22 +34,20 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global Error Handler 사용 (맨 마지막에 위치)
+// 글로벌 에러 핸들러
 app.use(errorHandler);
 
-// 처리되지 않은 Promise rejection 핸들러
+// 예외 처리
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
-// 처리되지 않은 예외 핸들러
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
   process.exit(1);
 });
 
+// 서버 실행
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`[백엔드] 서버 실행 중 http://localhost:${PORT}`);
 });
