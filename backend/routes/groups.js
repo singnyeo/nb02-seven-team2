@@ -1,9 +1,9 @@
 const express = require('express');
 const groupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
-
-const groupDataValidation = require('../middlewares/validation-check');
 const recordViewController = require('../controllers/records-view-controller');
+const groupDataValidation = require('../middlewares/validation-check');
+
 
 const router = express.Router({ mergeParams: true });
 

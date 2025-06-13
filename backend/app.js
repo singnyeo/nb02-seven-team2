@@ -4,25 +4,20 @@ const morgan = require('morgan');
 const { STATUS_CODE } = require("./utils/const");
 require('dotenv').config();
 
-const errorHandler = require("./middlewares/error-handler");
-
-const groupRoutes = require("./routes/groups");
 
 const app = express();
-const groupRoutes = require('./routes/groups');
-const { STATUS_CODE } = require('./utils/const');
+const groupRoutes = require("./routes/groups");
+const errorHandler = require("./middlewares/error-handler");
 
 app.use(cors()); 
 app.use(morgan("combined"));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+
+
 app.use('/groups', groupRoutes);
 
 
-// API 라우터
-app.use('/groups', groupRoutes);
-
-// 테스트 라우트를 맨 앞이나 중간 어딘가
 app.get("/", (req, res) => {
   res.json({ message: "운동 인증 커뮤니티 API 서버", version: "1.0.0" });
 });
@@ -32,7 +27,7 @@ app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "요청하신 리소스를 찾을 수 없습니다." });
 });
 
-// 오류 처리 미들웨어 (errorHandler 하나만)
+// 오류 처리 미들웨어
 app.use(errorHandler);
 
 // process handlers
