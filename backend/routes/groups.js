@@ -37,4 +37,22 @@ router
   .post(groupDataValidation, GroupParticipantController.postGroupParticipant)  // 그룹 참여 API
   .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
+/**
+ * 그룹 생성 API
+ * POST /groups
+ */
+router.post('/', GroupController.postGroup);
+
+/**
+ * 그룹 수정 API
+ * PATCH /groups/:groupId
+ */
+router.patch('/:groupId', GroupController.patchGroup);
+
+/**
+ * 그룹 삭제 API
+ * DELETE /groups/:groupId
+ */
+router.delete('/:groupId', GroupController.deleteGroup);
+
 module.exports = router;
