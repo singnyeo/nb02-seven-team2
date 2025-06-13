@@ -1,23 +1,23 @@
 const express = require('express');
 const GroupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
+const RecordViewController = require('../controllers/records-view-controller'); 
 const groupDataValidation = require('../middlewares/validation-check');
 
-const router = express.Router();
 
-/**
- * 그룹 목록 조회 API
- * GET /groups
- */
+const router = express.Router({ mergeParams: true });
+
+// 그룹 목록 조회
 router.get('/', GroupController.getGroups);
 
-/**
- * 그룹 상세 조회 API
- * GET /groups/:groupId
- */
-
+// 그룹 상세 조회
 router.get('/:groupId', GroupController.getGroupById);
 
+// 그룹 랭킹 조회
+router.get('/:groupId/rank', RecordViewController.getRank);
+
+// 운동 기록 상세 조회
+router.get('/:groupId/records/:recordId', RecordViewController.getRecordById);
 
 /**
  * 그룹 추천 API (좋아요)
@@ -39,8 +39,8 @@ router.delete('/:groupId/likes', GroupController.unrecommendGroup); //GroupContr
  */
 router
   .route('/:groupId/participants')
-  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) //그룹 참여 API
-  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); //그룹 참여 취소 API
+  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
+  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
 /**
  * 그룹 생성 API
