@@ -11,10 +11,10 @@ model Group {
   id                Int              @id @default(autoincrement())
   name              String           @unique
   description       String
-  photoUrl          String?          
-  goalRep           Int?             
-  discordWebhookUrl String?          
-  discordInviteUrl  String?          
+  photoUrl          String
+  goalRep           Int
+  discordWebhookUrl String
+  discordInviteUrl  String
   tag               Tag[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -22,8 +22,8 @@ model Group {
   rank              Rank[]
   groupRecommend    GroupRecommend[]
   participants      Participant[]
-  owner             User?            @relation(fields: [ownerId], references: [id]) 
-  ownerId           Int?             
+  owner             User             @relation(fields: [ownerId], references: [id])
+  ownerId           Int
 }
 
 model GroupRecommend {
@@ -58,16 +58,17 @@ model User {
 }
 
 model Participant {
-  id      Int   @id @default(autoincrement())
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  Int
+  id        Int   @id @default(autoincrement())
+  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   Int
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ExerciseRecord {
   id          Int      @id @default(autoincrement())
-  nickname    String
   sport       String
   description String
   duration    Int
@@ -95,8 +96,8 @@ model Photo {
   photoTag         PhotoTag
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  exerciseRecord   ExerciseRecord? @relation(fields: [exerciseRecordId], references: [id])
-  exerciseRecordId Int?           
+  exerciseRecord   ExerciseRecord @relation(fields: [exerciseRecordId], references: [id])
+  exerciseRecordId Int
 }
 
 enum PhotoTag {
