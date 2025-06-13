@@ -1,5 +1,5 @@
 const express = require('express');
-const groupController = require('../controllers/group-controller');
+const GroupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
 const recordViewController = require('../controllers/records-view-controller');
 const groupDataValidation = require('../middlewares/validation-check');
@@ -23,21 +23,20 @@ router.get('/:groupId/records/:recordId', recordViewController.getRecordById);
  * 그룹 추천 API (좋아요)
  * POST /groups/:groupId/likes
  */
-router.post('/:groupId/likes', groupController.recommendGroup);
+router.post('/:groupId/likes', GroupController.recommendGroup);
 
 /**
  * 그룹 추천 취소 API (좋아요 취소)
  * DELETE /groups/:groupId/likes
  */
-router.delete('/:groupId/likes', groupController.unrecommendGroup);
+router.delete('/:groupId/likes', GroupController.unrecommendGroup);
 
-
-module.exports = router;
-
+/**
+ * 그룹 참여 관련 API
+ */
 router
   .route('/:groupId/participants')
   .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
   .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
 module.exports = router;
-
