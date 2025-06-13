@@ -5,20 +5,18 @@
  * feature/groupRecommend 브랜치용
  */
 
-const errorHandler = (err, req, res, next) => {
-  // 에러 로깅
-  console.error('Error occurred:', {
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    body: req.body,
-    params: req.params,
-    query: req.query,
-    timestamp: new Date().toISOString(),
-  });
-
- */
+// const errorHandler = (err, req, res, next) => {
+//   // 에러 로깅
+//   console.error('Error occurred:', {
+//     message: err.message,
+//     stack: err.stack,
+//     url: req.url,
+//     method: req.method,
+//     body: req.body,
+//     params: req.params,
+//     query: req.query,
+//     timestamp: new Date().toISOString(),
+//   });
 
 const errorHandler = (err, req, res, next) => {
   // 에러 로깅 (개발환경에서만 자세한 정보 출력)
@@ -77,11 +75,11 @@ const errorHandler = (err, req, res, next) => {
       case 'P2003':
         errorResponse.message = '참조 제약 조건을 위반했습니다.';
         break;
-      default:
-        errorResponse.message = '데이터베이스 오류가 발생했습니다.';
+      // default:
+      //   errorResponse.message = '데이터베이스 오류가 발생했습니다.';
 
-        errorResponse.errorCode = 'DUPLICATE_DATA';
-        break;
+      //   errorResponse.errorCode = 'DUPLICATE_DATA';
+      //   break;
       case 'P2025':
         errorResponse.message = '요청한 데이터를 찾을 수 없습니다.';
         errorResponse.errorCode = 'DATA_NOT_FOUND';
@@ -117,6 +115,7 @@ const errorHandler = (err, req, res, next) => {
   // JWT 에러 처리 (추후 인증 기능 추가 시 사용)
   if (err.name === 'JsonWebTokenError') {
     errorResponse.message = '유효하지 않은 토큰입니다.';
+  }
 
   // JWT 에러 처리
   if (err.name === 'JsonWebTokenError') {

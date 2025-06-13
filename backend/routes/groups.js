@@ -19,8 +19,6 @@ router.get('/:groupId/rank', recordViewController.getRank);
 // 운동 기록 상세 조회
 router.get('/:groupId/records/:recordId', recordViewController.getRecordById);
 
-
-
 /**
  * 그룹 추천 API (좋아요)
  * POST /groups/:groupId/likes
@@ -38,8 +36,8 @@ module.exports = router;
 
 router
   .route('/:groupId/participants')
-  .post(groupDataValidation, GroupParticipantController.postGroupParticipant)// 그룹 참여 API
-  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant);// 그룹 참여 취소 API
+  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
+  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
 module.exports = router;
 
