@@ -8,7 +8,7 @@ const groupRoutes = require('./routes/groups');
 const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
 const { STATUS_CODE } = require('./utils/const');
 
-// 미들웨어 import - camelCase → kebab-case로 변경
+// 미들웨어 import
 const errorHandler = require('./middlewares/error-handler');
 
 // 기본 미들웨어 설정

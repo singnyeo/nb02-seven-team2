@@ -2,6 +2,7 @@ const express = require('express');
 const GroupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
 const groupDataValidation = require('../middlewares/validation-check');
+const recordRouter = require('./records');
 
 const router = express.Router();
 
@@ -17,7 +18,6 @@ router.get('/', GroupController.getGroups);
  */
 
 router.get('/:groupId', GroupController.getGroupById);
-
 
 /**
  * 그룹 추천 API (좋아요)
@@ -39,8 +39,8 @@ router.delete('/:groupId/likes', GroupController.unrecommendGroup); //GroupContr
  */
 router
   .route('/:groupId/participants')
-  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) //그룹 참여 API
-  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); //그룹 참여 취소 API
+  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
+  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
 /**
  * 그룹 생성 API
@@ -59,5 +59,8 @@ router.patch('/:groupId', GroupController.patchGroup);
  * DELETE /groups/:groupId
  */
 router.delete('/:groupId', GroupController.deleteGroup);
+
+// 그룹 ID를 기준으로 하는 기록 관련 하위 라우터 연결
+router.use('/:groupId', recordRouter);
 
 module.exports = router;
