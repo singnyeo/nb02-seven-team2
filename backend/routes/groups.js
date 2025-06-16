@@ -7,17 +7,18 @@ const groupDataValidation = require('../middlewares/validation-check');
 
 const router = express.Router({ mergeParams: true });
 
-// 그룹 목록 조회
+/**
+ * 그룹 목록 조회 API
+ * GET /groups
+ */
 router.get('/', GroupController.getGroups);
 
-// 그룹 상세 조회
+/**
+ * 그룹 상세 조회 API
+ * GET /groups/:groupId
+ */
+
 router.get('/:groupId', GroupController.getGroupById);
-
-// 그룹 랭킹 조회
-router.get('/:groupId/rank', RecordViewController.getRank);
-
-// 운동 기록 상세 조회
-router.get('/:groupId/records/:recordId', RecordViewController.getRecordById);
 
 /**
  * 그룹 추천 API (좋아요)
