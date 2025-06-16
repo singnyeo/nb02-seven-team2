@@ -9,7 +9,7 @@ class RecordViewController {
 
     // groupId가 정수인지 검사
     if (!Number.isInteger(groupId)) {
-      const error = new Error('[백엔드] groupId는 정수여야 합니다.');
+      const error = new Error('groupId는 정수여야 합니다.');
       error.status = 400;
       return next(error);
     }
@@ -21,7 +21,7 @@ class RecordViewController {
     });
 
     if (!groupExists) {
-      return res.status(404).json({ message: '[백엔드] 해당 그룹을 찾을 수 없습니다.' });
+      return res.status(404).json({ message: '해당 그룹을 찾을 수 없습니다.' });
     }
 
     // 조회 기간 설정 (monthly: 30일 전, 그 외: 7일 전)
@@ -91,7 +91,7 @@ class RecordViewController {
 
     // groupId 정수 체크
     if (!Number.isInteger(groupId)) {
-      return res.status(400).json({ message: '[백엔드] groupId는 정수여야 합니다.' });
+      return res.status(400).json({ message: 'groupId는 정수여야 합니다.' });
     }
 
     try {
@@ -114,7 +114,7 @@ class RecordViewController {
       if (!record || !record.user) {
         return res
           .status(404)
-          .json({ message: '[백엔드] 기록 또는 작성자를 찾을 수 없습니다.' });
+          .json({ message: '기록 또는 작성자를 찾을 수 없습니다.' });
       }
 
       // 조회 결과를 가공하여 응답
