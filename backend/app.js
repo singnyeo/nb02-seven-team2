@@ -3,21 +3,17 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-
+// 라우터 import
+const groupRoutes = require('./routes/groups');
+const recordsRoutes = require('./routes/records');
+const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
+const { STATUS_CODE } = require('./utils/const');
 
 // 미들웨어 import
 const errorHandler = require('./middlewares/error-handler');
 
-// 라우터 import
-const groupRoutes = require('./routes/groups');
-const recordsRoutes = require('./routes/records');
-
-const app = express();
-
-const { STATUS_CODE } = require('./utils/const');
-
-
 // 기본 미들웨어 설정
+const app = express();
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
@@ -26,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 // 라우터 연결
 app.use('/groups', groupRoutes);
 app.use('/groups', recordsRoutes);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 기본 라우트
 app.get('/', (req, res) => {
@@ -34,8 +31,6 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
-
-
 
 // 404 에러 핸들러
 app.use('*', (req, res) => {
@@ -62,5 +57,7 @@ process.on('uncaughtException', (error) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`)
+  console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
 });
+
+module.exports = app;
