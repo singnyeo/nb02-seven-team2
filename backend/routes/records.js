@@ -1,18 +1,18 @@
 const express = require('express');
-const RecordsController = require('../controllers/records-view-controller');
+const RecordViewController = require('../controllers/records-view-controller');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 /**
  * 그룹 랭킹 조회 API
- * GET /:groupId/rank
+ * GET /groups/:groupId/rank
  */
-router.get('/:groupId/rank', RecordViewController.getRank);
+router.get('/rank', RecordViewController.getRank);
 
 /**
  * 운동 기록 상세 조회 API
- * GET /:groupId/records/:recordId
+ * GET /groups/:groupId/records/:recordId
  */
-router.get('/:groupId/records/:recordId', RecordViewController.getRecordById);
+router.get('/records/:recordId', RecordViewController.getRecordById);
 
 module.exports = router;
