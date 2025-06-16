@@ -1,37 +1,57 @@
 const { startOfDay, subDays } = require('date-fns');
 const prisma = require('../utils/db');
+const {
+  object,
+  string,
+  optional,
+  enums,
+  validate,
+  StructError,
+} = require('superstruct');
 
 class RecordViewController {
-  // 그룹별 운동 기록 랭킹 조회 (기간, 페이징 지원)
   static async getRank(req, res, next) {
-    const groupId = Number(req.params.groupId);
-    const { duration, limit, page } = req.query;
+    // Params, Query 스키마 정의
+    const ParamsStruct = object({
+      groupId: string(),
+    });
+    const QueryStruct = object({
+      duration: optional(enums(['monthly', 'weekly'])),
+      limit: optional(string()),
+      page: optional(string()),
+    });
 
-    // groupId가 정수인지 검사
-    if (!Number.isInteger(groupId)) {
-      const error = new Error('groupId는 정수여야 합니다.');
-      error.status = 400;
+    try {
+      validate(req.params, ParamsStruct);
+      validate(req.query, QueryStruct);
+    } catch (error) {
+      if (error instanceof StructError) {
+        error.status = 400;
+        error.message = '요청 정보가 올바르지 않습니다';
+      }
       return next(error);
     }
 
-    // 해당 그룹 존재 여부 확인
-    const groupExists = await prisma.group.findUnique({
+    const groupId = Number(req.params.groupId);
+    if (!Number.isInteger(groupId) || groupId <= 0) {
+      return res.status(404).json({ message: '그룹을 찾을 수 없습니다' });
+    }
+
+    // 그룹 존재 여부 체크
+    const group = await prisma.group.findUnique({
       where: { id: groupId },
       select: { id: true },
     });
 
-    if (!groupExists) {
-      return res.status(404).json({ message: '해당 그룹을 찾을 수 없습니다.' });
+    if (!group) {
+      return res.status(404).json({ message: '그룹을 찾을 수 없습니다' });
     }
 
-    // 조회 기간 설정 (monthly: 30일 전, 그 외: 7일 전)
+    const { duration, limit, page } = req.query;
     const now = new Date();
-    const fromDate = startOfDay(
-      duration === 'monthly' ? subDays(now, 30) : subDays(now, 7),
-    );
+    const fromDate = startOfDay(duration === 'monthly' ? subDays(now, 30) : subDays(now, 7));
 
     try {
-      // 기간 내 그룹 참여자의 운동 기록 조회
       const records = await prisma.exerciseRecord.findMany({
         where: {
           createdAt: { gte: fromDate },
@@ -44,39 +64,28 @@ class RecordViewController {
         select: {
           userId: true,
           duration: true,
-          user: {
-            select: { nickname: true },
-          },
+          user: { select: { nickname: true } },
         },
       });
 
-      // 사용자별 기록 집계
       const rankMap = {};
-      records.forEach((record) => {
-        if (!rankMap[record.userId]) {
-          rankMap[record.userId] = {
-            participantId: record.userId,
-            nickname: record.user.nickname,
+      records.forEach(({ userId, duration: recordDuration, user }) => {
+        if (!rankMap[userId]) {
+          rankMap[userId] = {
+            participantId: userId,
+            nickname: user.nickname,
             recordCount: 0,
             recordTime: 0,
           };
         }
-        rankMap[record.userId].recordCount += 1;
-        rankMap[record.userId].recordTime += record.duration;
+        rankMap[userId].recordCount += 1;
+        rankMap[userId].recordTime += recordDuration;
       });
 
-      // 기록 시간 기준 내림차순 정렬
-      const rankList = Object.values(rankMap).sort(
-        (a, b) => b.recordTime - a.recordTime,
-      );
-
-      // 페이징 처리
+      const rankList = Object.values(rankMap).sort((a, b) => b.recordTime - a.recordTime);
       const pageNumber = Number(page) || 1;
       const pageSize = Number(limit) || 10;
-      const pagedRankList = rankList.slice(
-        (pageNumber - 1) * pageSize,
-        pageNumber * pageSize,
-      );
+      const pagedRankList = rankList.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
       return res.json(pagedRankList);
     } catch (error) {
@@ -84,18 +93,44 @@ class RecordViewController {
     }
   }
 
-  // 그룹 내 특정 운동 기록 상세 조회
   static async getRecordById(req, res, next) {
+    // Params 스키마 정의
+    const ParamsStruct = object({
+      groupId: string(),
+      recordId: string(),
+    });
+
+    try {
+      validate(req.params, ParamsStruct);
+    } catch (error) {
+      if (error instanceof StructError) {
+        error.status = 400;
+        error.message = '요청 정보가 올바르지 않습니다';
+      }
+      return next(error);
+    }
+
     const groupId = Number(req.params.groupId);
     const recordId = Number(req.params.recordId);
 
-    // groupId 정수 체크
-    if (!Number.isInteger(groupId)) {
-      return res.status(400).json({ message: 'groupId는 정수여야 합니다.' });
+    if (!Number.isInteger(groupId) || groupId <= 0) {
+      return res.status(404).json({ message: '그룹을 찾을 수 없습니다' });
+    }
+    if (!Number.isInteger(recordId) || recordId <= 0) {
+      return res.status(404).json({ message: '해당 운동기록을 찾을 수 없습니다' });
+    }
+
+    // 그룹 존재 여부 체크
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { id: true },
+    });
+
+    if (!group) {
+      return res.status(404).json({ message: '그룹을 찾을 수 없습니다' });
     }
 
     try {
-      // 그룹 참여자가 작성한 운동 기록 중 해당 ID의 기록 조회
       const record = await prisma.exerciseRecord.findFirst({
         where: {
           id: recordId,
@@ -112,19 +147,16 @@ class RecordViewController {
       });
 
       if (!record || !record.user) {
-        return res
-          .status(404)
-          .json({ message: '기록 또는 작성자를 찾을 수 없습니다.' });
+        return res.status(404).json({ message: '해당 운동기록을 찾을 수 없습니다' });
       }
 
-      // 조회 결과를 가공하여 응답
       return res.json({
         id: record.id,
         exerciseType: record.sport,
         description: record.description,
         time: record.duration,
         distance: record.distance,
-        photos: record.photo.map((p) => p.url),
+        photos: record.photo.map(({ url }) => url),
         author: {
           id: record.user.id,
           nickname: record.user.nickname,
