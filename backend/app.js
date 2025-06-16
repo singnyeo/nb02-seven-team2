@@ -3,23 +3,16 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// 미들웨어 import
-const errorHandler = require('./middlewares/error-handler');
-
 // 라우터 import
 const groupRoutes = require('./routes/groups');
-
 const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
 const { STATUS_CODE } = require('./utils/const');
-const morgan = require('morgan');
-require('dotenv').config();
 
 // 미들웨어 import - camelCase → kebab-case로 변경
 const errorHandler = require('./middlewares/error-handler');
 
-const app = express();
-
 // 기본 미들웨어 설정
+const app = express();
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
@@ -28,11 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 // 라우터 연결
 app.use('/groups', groupRoutes);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(express.urlencoded({ extended: true }));
-
-// 라우터 연결
-const groupRoutes = require('./routes/groups');
-app.use('/groups', groupRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {
