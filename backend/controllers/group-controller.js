@@ -57,6 +57,7 @@ class GroupController {
             badge: true,
             goalRep: true,
             createdAt: true,
+            updatedAt: true,
             owner: {
               select: {
                 id: true,
@@ -72,6 +73,19 @@ class GroupController {
               select: {
                 participants: true,
                 groupRecommend: true,
+              },
+            },
+             participants: {
+              select: {
+                id: true,
+                user: {
+                  select: {
+                    nickname: true,
+                  },
+                },
+                createdAt: true,
+                updatedAt: true,
+                
               },
             },
           },
@@ -106,6 +120,7 @@ class GroupController {
             badge: true,
             goalRep: true,
             createdAt: true,
+            updatedAt: true,
             owner: {
               select: {
                 id: true,
@@ -123,6 +138,19 @@ class GroupController {
                 groupRecommend: true,
               },
             },
+            participants: {
+              select: {
+                id: true,
+                user: {
+                  select:{
+                    nickname: true,
+                  },
+                },
+                createdAt: true,
+                updatedAt: true,
+                
+              },
+            },
           },
         });
       }
@@ -131,14 +159,28 @@ class GroupController {
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
-        nickname: group.owner.nickname,
+        description: group.description,
         photoUrl: group.photoUrl,
-        badge: group.badge,
-        tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        recommendCount: group._count.groupRecommend,
-        participantCount: group._count.participants,
+        discordWebhookUrl: group.discordWebhookUrl ?? '',
+        discordInviteUrl: group.discordInviteUrl ?? '',
+        likeCount: group._count.groupRecommend,
+        tags: group.tag.map((t) => t.name),
+        owner: {
+          id: group.owner.id,
+          nickname: group.owner.nickname,
+          createdAt: new Date(group.owner.createdAt).getTime(),
+          updatedAt: new Date(group.owner.updatedAt).getTime(),
+        },
+        participants: group.participants.map(p => ({
+          id: p.id,
+          nickname: p.user.nickname,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        })),
         createdAt: group.createdAt,
+        updatedAt: group.updatedAt,
+        badges: group.badge,
       }));
 
       // 페이지네이션 정보
@@ -147,18 +189,8 @@ class GroupController {
       const hasPrevPage = pageNum > 1;
 
       res.status(200).json({
-        success: true,
-        data: {
-          groups: groupList,
-          pagination: {
-            currentPage: pageNum,
-            totalPages,
-            totalCount,
-            hasNextPage,
-            hasPrevPage,
-            limit: limitNum,
-          },
-        },
+        data: groupList,
+        total: totalCount,
       });
     } catch (error) {
       next(error);
