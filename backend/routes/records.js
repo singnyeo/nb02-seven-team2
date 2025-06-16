@@ -1,5 +1,6 @@
 const express = require('express');
 const RecordViewController = require('../controllers/records-view-controller');
+const RecordsController = require('../controllers/records-controller');
 
 const router = express.Router({ mergeParams: true });
 
@@ -14,5 +15,11 @@ router.get('/rank', RecordViewController.getRank);
  * GET /groups/:groupId/records/:recordId
  */
 router.get('/records/:recordId', RecordViewController.getRecordById);
+
+/**
+ * 운동 기록 목록 조회 API
+ * GET /:groupId/records
+ */
+router.get('/:groupId/records', RecordsController.getGroupRecords);
 
 module.exports = router;
