@@ -4,7 +4,7 @@ const GroupParticipantController = require('../controllers/group-participant-con
 const groupDataValidation = require('../middlewares/validation-check');
 const recordRouter = require('./records');
 
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 /**
  * 그룹 목록 조회 API
