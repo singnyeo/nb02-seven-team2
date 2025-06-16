@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon app.js",
-    "seed": "node data/seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:prod": "NODE_ENV=production node app.js",
+    "dev:prod": "NODE_ENV=production nodemon app.js",
+    "seed": "node seed.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
@@ -20,11 +25,14 @@
     "express": "^4.21.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nodemon": "^3.1.10",
+    "pg": "^8.16.0",
     "prisma": "^6.9.0"
   }
 }
