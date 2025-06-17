@@ -13,7 +13,8 @@ class GroupController {
       const {
         page = 1,
         limit = 10,
-        sort = 'latest',
+        orderBy = 'createdAt',
+        order = 'desc',
         search,
       } = req.query;
 
@@ -45,8 +46,8 @@ class GroupController {
 
       let groups;
 
-      // recommend 또는 participants로 정렬하는 경우
-      if (sort === 'recommend' || sort === 'participants') {
+      // orderBy와 order 기반 정렬
+      if (orderBy === 'likeCount' || orderBy === 'participantCount') {
         // 모든 그룹을 조회 (검색 조건 적용)
         const allGroups = await prisma.group.findMany({
           where: whereCondition,
@@ -54,9 +55,9 @@ class GroupController {
             id: true,
             name: true,
             photoUrl: true,
-            badge: true,
             goalRep: true,
             createdAt: true,
+            updatedAt: true,
             owner: {
               select: {
                 id: true,
@@ -79,22 +80,26 @@ class GroupController {
 
         // 메모리에서 정렬
         allGroups.sort((a, b) => {
-          if (sort === 'recommend') {
-            return b._count.groupRecommend - a._count.groupRecommend;
-          } else {
-            return b._count.participants - a._count.participants;
+          let compareValue = 0;
+          if (orderBy === 'likeCount') {
+            compareValue = b._count.groupRecommend - a._count.groupRecommend;
+          } else if (orderBy === 'participantCount') {
+            compareValue = b._count.participants - a._count.participants;
           }
+          
+          // order가 'asc'면 순서 반대로
+          return order === 'asc' ? -compareValue : compareValue;
         });
 
         // 페이지네이션 적용
         groups = allGroups.slice(offset, offset + limitNum);
       } else {
-        // latest 정렬 (기본)
+        // createdAt 정렬 (기본)
         groups = await prisma.group.findMany({
           where: whereCondition,
           orderBy: [
             {
-              createdAt: 'desc',
+              createdAt: order === 'asc' ? 'asc' : 'desc',
             },
           ],
           skip: offset,
@@ -103,9 +108,9 @@ class GroupController {
             id: true,
             name: true,
             photoUrl: true,
-            badge: true,
             goalRep: true,
             createdAt: true,
+            updatedAt: true,
             owner: {
               select: {
                 id: true,
@@ -127,38 +132,34 @@ class GroupController {
         });
       }
 
-      // 응답 데이터 가공
+      // 응답 데이터 가공 - 프론트엔드 호환성을 위해 추가 필드 포함
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
         nickname: group.owner.nickname,
         photoUrl: group.photoUrl,
-        badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         recommendCount: group._count.groupRecommend,
         participantCount: group._count.participants,
-        createdAt: group.createdAt,
+        // 프론트엔드 호환을 위한 추가 필드
+        likeCount: group._count.groupRecommend,
+        recordCount: 0, // Record 모델이 아직 없으므로 0으로 설정
+        owner: {
+          id: group.owner.id,
+          nickname: group.owner.nickname,
+          createdAt: group.createdAt.getTime(),
+          updatedAt: group.updatedAt.getTime(),
+        },
+        participants: [], // 목록 조회에서는 참여자 상세 정보 불필요
+        badges: [], // 뱃지 기능은 아직 구현되지 않음
+        createdAt: group.createdAt.getTime(),
+        updatedAt: group.updatedAt.getTime(),
       }));
 
-      // 페이지네이션 정보
-      const totalPages = Math.ceil(totalCount / limitNum);
-      const hasNextPage = pageNum < totalPages;
-      const hasPrevPage = pageNum > 1;
-
       res.status(200).json({
-        success: true,
-        data: {
-          groups: groupList,
-          pagination: {
-            currentPage: pageNum,
-            totalPages,
-            totalCount,
-            hasNextPage,
-            hasPrevPage,
-            limit: limitNum,
-          },
-        },
+        data: groupList,
+        total: totalCount,
       });
     } catch (error) {
       next(error);
@@ -190,9 +191,9 @@ class GroupController {
           name: true,
           description: true,
           photoUrl: true,
-          badge: true,
           goalRep: true,
           discordInviteUrl: true,
+          discordWebhookUrl: true, // 추가
           createdAt: true,
           updatedAt: true,
           tag: {
@@ -221,28 +222,34 @@ class GroupController {
         throw error;
       }
 
-      // 응답 데이터 가공
+      // 응답 데이터 가공 - 프론트엔드 타입에 맞게
       const groupDetail = {
         id: group.id,
         name: group.name,
         description: group.description,
         nickname: group.owner.nickname,
         photoUrl: group.photoUrl,
-        badge: group.badge,
         tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
         participantCount: group._count.participants,
-        recommendCount: group._count.groupRecommend,
         discordInviteUrl: group.discordInviteUrl,
-        owner: group.owner,
-        createdAt: group.createdAt,
-        updatedAt: group.updatedAt,
+        // 프론트엔드 타입 호환을 위한 추가 필드
+        discordWebhookUrl: group.discordWebhookUrl, // 빈 값을 group.discordWebhookUrl로 변경
+        likeCount: group._count.groupRecommend,
+        recordCount: 0, // Record 모델이 아직 없으므로 0으로 설정
+        owner: {
+          id: group.owner.id,
+          nickname: group.owner.nickname,
+          createdAt: group.createdAt.getTime(),
+          updatedAt: group.updatedAt.getTime(),
+        },
+        participants: [],
+        badges: [],
+        createdAt: group.createdAt.getTime(),
+        updatedAt: group.updatedAt.getTime(),
       };
 
-      res.status(200).json({
-        success: true,
-        data: groupDetail,
-      });
+      res.status(200).json(groupDetail);
     } catch (error) {
       next(error);
     }
@@ -270,7 +277,7 @@ class GroupController {
           },
         });
         //태그 생성
-        const createedtags = await Promise.all(
+        const createdTags = await Promise.all(
           tags.map(name => 
             tx.tag.create({
               data: { 
@@ -281,7 +288,7 @@ class GroupController {
           )
         );
         //오너 참여자 등록
-        await tx.participant.create({
+        const ownerParticipant = await tx.participant.create({
           data: {
             groupId: group.id,
             userId: owner.id
@@ -301,7 +308,7 @@ class GroupController {
           discordWebhookUrl: group.discordWebhookUrl,
           discordInviteUrl: group.discordInviteUrl,
           likeCount: likeCount,
-          tags: createedtags.map(tag => tag.name),
+          tags: createdTags.map(tag => tag.name),
           owner: {
             id: owner.id,
             nickname: owner.nickname,
@@ -318,14 +325,12 @@ class GroupController {
           ],
           createdAt: group.createdAt.getTime(),
           updatedAt: group.updatedAt.getTime(),
-          badges: group.badge // 초기 상태에서는 빈 배열
+          badges: group.badge || [],
+          recordCount: 0
         };
         return response;
       });
-      res.status(200).json({
-        success: true,
-        data: postGroup,
-      });
+      res.status(200).json(postGroup);
     } catch (error) {
       next(error);
     }
@@ -349,8 +354,17 @@ class GroupController {
               password: true,
             }
           },
-          participants: true,
+          participants: {
+            include: {
+              user: true
+            }
+          },
           tag: true,
+          _count: {
+            select: {
+              groupRecommend: true,
+            }
+          }
         }
       });
       if (!existingGroup) {
@@ -374,35 +388,30 @@ class GroupController {
             tag = await Promise.all(
               tags.map(name => {
                 return tx.tag.create({
-                  data: { name: name,
-                    group: { connect: { id: id }},
+                  data: { 
+                    name: name,
+                    groupId: id
                   },
                 })
               }),
             )
           } else {
             //태그 패치 없을시 기존 태그 가져오기
-            tag = existingGroup. tag;
+            tag = existingGroup.tag;
           }
-          // 오너 업데이트
-          const owner = await tx.user.update({
-            where : { id: existingGroup.owner.id },
-            data: { nickname: ownerNickname }
-          })
+          // 오너 업데이트 (ownerNickname이 있을 때만)
+          let owner = existingGroup.owner;
+          if (ownerNickname) {
+            owner = await tx.user.update({
+              where : { id: existingGroup.owner.id },
+              data: { nickname: ownerNickname }
+            });
+          }
           // 그룹 업데이트
           const group = await tx.group.update({
             where: { id: id },
-            include: {
-              owner: true,
-            },
             data: updateData,
           });
-          // 참여자 조회
-          const participant = await tx.participant.findMany({
-            where: {
-              id: { in: existingGroup.participants.map(participant => participant.id)}
-            }
-          })
           // groupRecommend 카운트
           const likeCount = await tx.groupRecommend.count({
             where: { groupId: group.id },
@@ -421,20 +430,23 @@ class GroupController {
             owner: {
               id: owner.id,
               nickname: owner.nickname,
-              createdAt: owner.createdAt,
-              updatedAt: owner.updatedAt,
+              createdAt: owner.createdAt.getTime(),
+              updatedAt: owner.updatedAt.getTime(),
             },
-            participants: participant,
-            createdAt: group.createdAt,
-            updatedAt: group.updatedAt,
-            badges: group.badge
+            participants: existingGroup.participants.map(p => ({
+              id: p.user.id,
+              nickname: p.user.nickname,
+              createdAt: p.createdAt.getTime(),
+              updatedAt: p.updatedAt.getTime(),
+            })),
+            createdAt: group.createdAt.getTime(),
+            updatedAt: group.updatedAt.getTime(),
+            badges: group.badge || [],
+            recordCount: 0 // Record 모델이 아직 없으므로 0으로 설정
           };
           return response
         });
-        return res.status(200).json({
-          success: true,
-          data: patchGroup,
-        });
+        return res.status(200).json(patchGroup);
       } else {
         return res.status(403).json({ error: '비밀번호가 틀렸습니다.' });
       }
@@ -481,14 +493,9 @@ class GroupController {
   static async recommendGroup(req, res, next) {
     try {
       const { groupId } = req.params;
-      const { userId } = req.body;
-
-      // 필수 값 검증
-      if (!userId) {
-        const error = new Error('사용자 ID가 필요합니다.');
-        error.status = 400;
-        throw error;
-      }
+      // 프론트엔드에서 userId를 보내지 않으므로 임시 처리
+      // 실제로는 인증 미들웨어에서 req.user.id 등으로 가져와야 함
+      const userId = req.body.userId || 1; // 임시로 1로 설정
 
       const groupIdInt = parseInt(groupId, 10);
       const userIdInt = parseInt(userId, 10);
@@ -527,18 +534,8 @@ class GroupController {
         },
       });
 
-      // 생성 후 현재 추천 수 조회
-      const recommendCount = await prisma.groupRecommend.count({
-        where: { groupId: groupIdInt },
-      });
-
       res.status(200).json({
-        success: true,
         message: '그룹을 추천했습니다.',
-        data: {
-          groupId: groupIdInt,
-          recommendCount,
-        },
       });
     } catch (error) {
       next(error);
@@ -552,14 +549,8 @@ class GroupController {
   static async unrecommendGroup(req, res, next) {
     try {
       const { groupId } = req.params;
-      const { userId } = req.body;
-
-      // 필수 값 검증
-      if (!userId) {
-        const error = new Error('사용자 ID가 필요합니다.');
-        error.status = 400;
-        throw error;
-      }
+      // 프론트엔드에서 userId를 보내지 않으므로 임시 처리
+      const userId = req.body.userId || 1; // 임시로 1로 설정
 
       const groupIdInt = parseInt(groupId, 10);
       const userIdInt = parseInt(userId, 10);
@@ -595,12 +586,9 @@ class GroupController {
         where: { id: existingRecommend.id },
       });
 
-      // 삭제 후 현재 추천 수 조회
-      const recommendCount = await prisma.groupRecommend.count({
-        where: { groupId: groupIdInt },
+      res.status(200).json({
+        message: '그룹 추천을 취소했습니다.',
       });
-
-      res.status(204).send();
     } catch (error) {
       next(error);
     }

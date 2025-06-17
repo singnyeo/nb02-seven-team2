@@ -5,7 +5,6 @@ require('dotenv').config();
 
 // 라우터 import
 const groupRoutes = require('./routes/groups');
-const recordsRoutes = require('./routes/records');
 const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
 const { STATUS_CODE } = require('./utils/const');
 
@@ -20,8 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
-app.use('/groups', groupRoutes);
-app.use('/groups', recordsRoutes);
+app.use('/groups', groupRoutes);  // recordsRoutes 제거
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 기본 라우트
