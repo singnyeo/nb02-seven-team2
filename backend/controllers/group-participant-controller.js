@@ -32,7 +32,7 @@ class GroupParticipantController {
         findUserByNickname(nickname),
         findGroupById(groupId),
       ]);
-    
+
 
       const participant = await findParticipant(nickname, groupId);
 
@@ -144,15 +144,15 @@ class GroupParticipantController {
       }
       // 해당 유저의 운동 기록 id 목록 조회
       const exerciseRecordIds = (await db.exerciseRecord.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, groupId },
         select: { id: true },
       })).map((record) => record.id);
 
       await db.$transaction(async (tx) => {
         // 5. 운동 사진 삭제
-        await tx.photo.deleteMany({ where: { exerciseRecordId: { in: exerciseRecordIds } } });
+        await tx.photo.deleteMany({ where: { exerciseRecordId: { in: exerciseRecordIds }, groupId } });
         // 6. 운동 기록 삭제
-        await tx.exerciseRecord.deleteMany({ where: { userId: user.id } });
+        await tx.exerciseRecord.deleteMany({ where: { userId: user.id, groupId }, });
         // 4. 참여자 삭제
         await tx.participant.delete({ where: { id: participant.id } });
       });
