@@ -19,10 +19,12 @@ const ERROR_MSG = {
   RECORD_NOT_FOUND: '해당 운동기록을 찾을 수 없습니다.',
   NICKNAME_ALREADY_EXISTS: '해당 닉네임이 이미 존재합니다.',
   PARTICIPANT_NOT_FOUND: '해당 닉네임의 참여자를 찾을 수 없습니다.',
+  PARTICIPANT_ALREADY_EXISTS: '이미 참여한 그룹 입니다.',
   PASSWORD_MISMATCH: '비밀번호가 일치하지 않습니다.',
   DELETE_FAILED: '참여자 삭제 중 오류가 발생하였습니다.',
   SERVER_ERROR: '작업 중 오류가 발생하였습니다.',
 };
+
 
 module.exports = {
   STATUS_CODE,
