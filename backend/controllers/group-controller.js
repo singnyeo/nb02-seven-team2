@@ -193,6 +193,7 @@ class GroupController {
           photoUrl: true,
           goalRep: true,
           discordInviteUrl: true,
+          discordWebhookUrl: true, // 추가
           createdAt: true,
           updatedAt: true,
           tag: {
@@ -233,7 +234,7 @@ class GroupController {
         participantCount: group._count.participants,
         discordInviteUrl: group.discordInviteUrl,
         // 프론트엔드 타입 호환을 위한 추가 필드
-        discordWebhookUrl: '',
+        discordWebhookUrl: group.discordWebhookUrl, // 빈 값을 group.discordWebhookUrl로 변경
         likeCount: group._count.groupRecommend,
         recordCount: 0, // Record 모델이 아직 없으므로 0으로 설정
         owner: {
