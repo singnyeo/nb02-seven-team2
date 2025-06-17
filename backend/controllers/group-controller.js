@@ -69,6 +69,18 @@ class GroupController {
                 name: true,
               },
             },
+            participants: {
+              select: {
+                user: {
+                  select: {
+                    id: true,
+                    nickname: true,
+                    createdAt: true,
+                    updatedAt: true,
+                        },
+                },
+              },
+            },
             _count: {
               select: {
                 participants: true,
@@ -122,6 +134,18 @@ class GroupController {
                 name: true,
               },
             },
+            participants: {
+              select: {
+                user: {
+                  select: {
+                    id: true,
+                    nickname: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                },
+              },
+            },
             _count: {
               select: {
                 participants: true,
@@ -132,29 +156,32 @@ class GroupController {
         });
       }
 
-      // 응답 데이터 가공 - 프론트엔드 호환성을 위해 추가 필드 포함
+      // 응답 데이터 가공 - 명세서에 맞게 수정
       const groupList = groups.map((group) => ({
         id: group.id,
         name: group.name,
-        nickname: group.owner.nickname,
+        description: group.description || "",
         photoUrl: group.photoUrl,
-        tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        recommendCount: group._count.groupRecommend,
-        participantCount: group._count.participants,
-        // 프론트엔드 호환을 위한 추가 필드
+        discordWebhookUrl: group.discordWebhookUrl || "",
+        discordInviteUrl: group.discordInviteUrl || "",
         likeCount: group._count.groupRecommend,
-        recordCount: 0, // Record 모델이 아직 없으므로 0으로 설정
+        tags: group.tag.map((t) => t.name),
         owner: {
           id: group.owner.id,
           nickname: group.owner.nickname,
-          createdAt: group.createdAt.getTime(),
-          updatedAt: group.updatedAt.getTime(),
+          createdAt: 0, // 명세서에 맞게 0으로 설정
+          updatedAt: 0,
         },
-        participants: [], // 목록 조회에서는 참여자 상세 정보 불필요
-        badges: [], // 뱃지 기능은 아직 구현되지 않음
+        participants: group.participants.map((p) => ({
+          id: p.user.id,
+          nickname: p.user.nickname,
+          createdAt: p.user.createdAt.getTime(),
+          updatedAt: p.user.updatedAt.getTime(),
+        })),
         createdAt: group.createdAt.getTime(),
         updatedAt: group.updatedAt.getTime(),
+        badges: [],
       }));
 
       res.status(200).json({
@@ -207,6 +234,18 @@ class GroupController {
               nickname: true,
             },
           },
+          participants: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  nickname: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+            },
+          },
           _count: {
             select: {
               participants: true,
@@ -222,32 +261,33 @@ class GroupController {
         throw error;
       }
 
-      // 응답 데이터 가공 - 프론트엔드 타입에 맞게
+     // 응답 데이터 가공 - 명세서에 맞게 수정
       const groupDetail = {
         id: group.id,
         name: group.name,
         description: group.description,
-        nickname: group.owner.nickname,
         photoUrl: group.photoUrl,
-        tags: group.tag.map((t) => t.name),
         goalRep: group.goalRep,
-        participantCount: group._count.participants,
+        discordWebhookUrl: group.discordWebhookUrl,
         discordInviteUrl: group.discordInviteUrl,
-        // 프론트엔드 타입 호환을 위한 추가 필드
-        discordWebhookUrl: group.discordWebhookUrl, // 빈 값을 group.discordWebhookUrl로 변경
         likeCount: group._count.groupRecommend,
-        recordCount: 0, // Record 모델이 아직 없으므로 0으로 설정
+        tags: group.tag.map((t) => t.name),
         owner: {
           id: group.owner.id,
           nickname: group.owner.nickname,
-          createdAt: group.createdAt.getTime(),
-          updatedAt: group.updatedAt.getTime(),
+          createdAt: 0, // 명세서에 맞게 0으로 설정
+          updatedAt: 0,
         },
-        participants: [],
-        badges: [],
+        participants: group.participants.map((p) => ({
+          id: p.user.id,
+          nickname: p.user.nickname,
+          createdAt: p.user.createdAt.getTime(),
+          updatedAt: p.user.updatedAt.getTime(),
+        })),
         createdAt: group.createdAt.getTime(),
         updatedAt: group.updatedAt.getTime(),
-      };
+        badges: [],
+      }; 
 
       res.status(200).json(groupDetail);
     } catch (error) {
