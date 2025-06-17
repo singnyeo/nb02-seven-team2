@@ -20,6 +20,6 @@ router.get('/records/:recordId', RecordViewController.getRecordById);
  * 운동 기록 목록 조회 API
  * GET /:groupId/records
  */
-router.get('/:groupId/records', RecordsController.getGroupRecords);
+router.get('/records', RecordsController.getGroupRecords);
 
 module.exports = router;
