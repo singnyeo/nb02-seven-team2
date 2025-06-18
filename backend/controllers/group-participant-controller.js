@@ -167,7 +167,7 @@ class GroupParticipantController {
         await tx.participant.delete({ where: { id: participant.id } });
       });
 
-      return res.status(STATUS_CODE.CREATED).json({ message: '참여자가 성공적으로 삭제되었습니다.' });
+      return res.status(STATUS_CODE.NO_CONTENT).json({ message: '참여자가 성공적으로 삭제되었습니다.' });
     } catch (error) {
       return handleError(res, error, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
