@@ -6,7 +6,7 @@ const handleError = (
   res,
   error,
   message = ERROR_MSG.SERVER_ERROR,
-  status = STATUS_CODE.SERVER_ERROR,
+  status = STATUS_CODE.INTERNAL_SERVER_ERROR,
 ) => {
   console.error(message, error);
   res.status(status).json({ error: message });
