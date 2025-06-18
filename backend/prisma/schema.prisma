@@ -98,7 +98,7 @@ model Rank {
 }
 
 model Photo {
-  id               Int            @id
+  id               Int            @id @default(autoincrement())
   url              String
   photoTag         PhotoTag
   createdAt        DateTime       @default(now())
