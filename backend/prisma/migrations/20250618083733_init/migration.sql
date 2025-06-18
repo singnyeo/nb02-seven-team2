@@ -1,66 +1,5 @@
-/*
-  Warnings:
-
-  - You are about to drop the `exercise_records` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `group_recommends` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `groups` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `participants` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `photos` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ranks` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `tags` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `users` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "exercise_records" DROP CONSTRAINT "exercise_records_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "group_recommends" DROP CONSTRAINT "group_recommends_groupId_fkey";
-
--- DropForeignKey
-ALTER TABLE "group_recommends" DROP CONSTRAINT "group_recommends_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "groups" DROP CONSTRAINT "groups_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "participants" DROP CONSTRAINT "participants_groupId_fkey";
-
--- DropForeignKey
-ALTER TABLE "participants" DROP CONSTRAINT "participants_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "photos" DROP CONSTRAINT "photos_exerciseRecordId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ranks" DROP CONSTRAINT "ranks_groupId_fkey";
-
--- DropForeignKey
-ALTER TABLE "tags" DROP CONSTRAINT "tags_groupId_fkey";
-
--- DropTable
-DROP TABLE "exercise_records";
-
--- DropTable
-DROP TABLE "group_recommends";
-
--- DropTable
-DROP TABLE "groups";
-
--- DropTable
-DROP TABLE "participants";
-
--- DropTable
-DROP TABLE "photos";
-
--- DropTable
-DROP TABLE "ranks";
-
--- DropTable
-DROP TABLE "tags";
-
--- DropTable
-DROP TABLE "users";
+-- CreateEnum
+CREATE TYPE "PhotoTag" AS ENUM ('GROUP', 'EXERCISERECORD');
 
 -- CreateTable
 CREATE TABLE "Group" (
@@ -133,6 +72,7 @@ CREATE TABLE "ExerciseRecord" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
+    "groupId" INTEGER NOT NULL,
 
     CONSTRAINT "ExerciseRecord_pkey" PRIMARY KEY ("id")
 );
@@ -151,7 +91,7 @@ CREATE TABLE "Rank" (
 
 -- CreateTable
 CREATE TABLE "Photo" (
-    "id" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "url" TEXT NOT NULL,
     "photoTag" "PhotoTag" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -165,7 +105,13 @@ CREATE TABLE "Photo" (
 CREATE UNIQUE INDEX "Group_name_key" ON "Group"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "GroupRecommend_groupId_userId_key" ON "GroupRecommend"("groupId", "userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Participant_groupId_userId_key" ON "Participant"("groupId", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rank_groupId_key" ON "Rank"("groupId");
@@ -190,6 +136,9 @@ ALTER TABLE "Participant" ADD CONSTRAINT "Participant_userId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "ExerciseRecord" ADD CONSTRAINT "ExerciseRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExerciseRecord" ADD CONSTRAINT "ExerciseRecord_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Rank" ADD CONSTRAINT "Rank_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
