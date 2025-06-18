@@ -18,7 +18,7 @@ const groupDataValidation = (req, res, next) => {
     return handleError(res, null, ERROR_MSG.INVALID_PASSWORD, STATUS_CODE.NOT_FOUND);
   }
   // 4. 비밀번호 길이 확인
-  if (process.env.NODE_ENV === 'prod' && password.length < 8) {
+  if (password.length < 8) {
     return handleError(res, null, ERROR_MSG.PASSWORD_TOO_SHORT, STATUS_CODE.NOT_FOUND);
   }
   return next();

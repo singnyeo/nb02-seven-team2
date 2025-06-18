@@ -154,7 +154,7 @@ class GroupParticipantController {
 
       // 5. 해당 유저의 운동 기록 id 목록 조회
       const exerciseRecordIds = (await db.exerciseRecord.findMany({
-        where: { userId: participant.id },
+        where: { groupId, userId: user.id },
         select: { id: true },
       })).map((record) => record.id);
 
@@ -162,7 +162,7 @@ class GroupParticipantController {
         // 6. 운동 사진 삭제
         await tx.photo.deleteMany({ where: { exerciseRecordId: { in: exerciseRecordIds }, } });
         // 7. 운동 기록 삭제
-        await tx.exerciseRecord.deleteMany({ where: { userId: participant.id }, });
+        await tx.exerciseRecord.deleteMany({ where: { id: { in: exerciseRecordIds }, } });
         // 8. 참여자 삭제
         await tx.participant.delete({ where: { id: participant.id } });
       });
