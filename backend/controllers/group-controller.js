@@ -62,6 +62,8 @@ class GroupController {
               select: {
                 id: true,
                 nickname: true,
+                createdAt: true,  // 추가
+                updatedAt: true,  // 추가
               },
             },
             tag: {
@@ -69,6 +71,7 @@ class GroupController {
                 name: true,
               },
             },
+            badge: true, // badge 추가
             participants: {
               select: {
                 user: {
@@ -127,6 +130,8 @@ class GroupController {
               select: {
                 id: true,
                 nickname: true,
+                createdAt: true,  // 추가
+                updatedAt: true,  // 추가
               },
             },
             tag: {
@@ -134,6 +139,7 @@ class GroupController {
                 name: true,
               },
             },
+            badge: true, // badge 추가
             participants: {
               select: {
                 user: {
@@ -170,8 +176,8 @@ class GroupController {
         owner: {
           id: group.owner.id,
           nickname: group.owner.nickname,
-          createdAt: 0, // 명세서에 맞게 0으로 설정
-          updatedAt: 0,
+          createdAt: group.owner.createdAt.getTime(), // 실제 시간값으로 변경
+          updatedAt: group.owner.updatedAt.getTime(), // 실제 시간값으로 변경
         },
         participants: group.participants.map((p) => ({
           id: p.user.id,
@@ -181,7 +187,7 @@ class GroupController {
         })),
         createdAt: group.createdAt.getTime(),
         updatedAt: group.updatedAt.getTime(),
-        badges: [],
+        badges: group.badge || [],  // badage는 이미 string[]타입, 빈 값에서 변경
       }));
 
       res.status(200).json({
@@ -228,10 +234,13 @@ class GroupController {
               name: true,
             },
           },
+          badge: true, // badge 추가
           owner: {
             select: {
               id: true,
               nickname: true,
+              createdAt: true,  // 추가
+              updatedAt: true,  // 추가
             },
           },
           participants: {
@@ -275,8 +284,8 @@ class GroupController {
         owner: {
           id: group.owner.id,
           nickname: group.owner.nickname,
-          createdAt: 0, // 명세서에 맞게 0으로 설정
-          updatedAt: 0,
+          createdAt: group.owner.createdAt.getTime(),  // 실제 시간으로 변경
+          updatedAt: group.owner.updatedAt.getTime(),  // 실제 시간으로 변경
         },
         participants: group.participants.map((p) => ({
           id: p.user.id,
@@ -286,7 +295,7 @@ class GroupController {
         })),
         createdAt: group.createdAt.getTime(),
         updatedAt: group.updatedAt.getTime(),
-        badges: [],
+        badges: group.badge || [],  // badge는 이미 string[]타입, 빈 값에서 변경
       }; 
 
       res.status(200).json(groupDetail);
