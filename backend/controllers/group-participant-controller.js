@@ -1,6 +1,7 @@
 const db = require('../utils/db');
-const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
 const handleError = require('../utils/error');
+const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
+const { hashPassword, comparePassword } = require('../utils/password');
 
 /** 유저 조회 */
 const findUserByNickname = (nickname) => db.user.findUnique({ where: { nickname } });
@@ -30,15 +31,21 @@ class GroupParticipantController {
 
     try {
       // 1. 그룹 정보, 참여자 정보, 유저 정보 조회
-      const [group, participant] = await Promise.all([findGroupById(groupId), findParticipant(nickname, groupId)]);
       let user = await findUserByNickname(nickname);
+      const [group, participant] = await Promise.all([findGroupById(groupId), findParticipant(nickname, groupId)]);
+      // 2. 비밀번호 해시화
+      const hashedPassword = await hashPassword(password);
 
       // 2. 그룹 존재 여부 확인
       if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
       // 3. 그룹 내 참여자 존재 조회
       if (participant) return handleError(res, null, ERROR_MSG.NICKNAME_ALREADY_EXISTS, STATUS_CODE.BAD_REQUEST);
       // 4. 유저가 있으면 비밀번호 확인
-      if (user && isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      if (user) {
+        // 4-1. 비밀번호 비교
+        const isMatchPassword = await comparePassword(password, user.password);
+        if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED)
+      };
 
       // 5. 참여자 생성
       await db.$transaction(async (tx) => {
@@ -47,7 +54,7 @@ class GroupParticipantController {
           user = await tx.user.create({
             data: {
               nickname,
-              password,
+              password: hashedPassword,
               createdAt: now,
               updatedAt: now,
             },
@@ -129,19 +136,21 @@ class GroupParticipantController {
     const { nickname, password } = req.body;
 
     try {
-      const [user, group] = await Promise.all([
+      // 1. 유저, 그룹, 참여자 정보 조회
+      const [user, group, participant] = await Promise.all([
         findUserByNickname(nickname),
         findGroupById(groupId),
+        findParticipant(nickname, groupId)
       ]);
-      const participant = await findParticipant(nickname, groupId);
-      // 1. 유저 조회
+      const isMatchPassword = await comparePassword(password, user.password);
+      // 2. 유저 확인
       if (!user) return handleError(res, null, ERROR_MSG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
-      // 2. 그룹 조회
+      // 2. 그룹 확인
       if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       // 3. 그룹 내 참여자 조회
       if (!participant) return handleError(res, null, ERROR_MSG.PARTICIPANT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       // 4. 비밀번호 확인
-      if (!user || user.password !== password) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      if (!user || !isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
 
       // 5. 해당 유저의 운동 기록 id 목록 조회
       const exerciseRecordIds = (await db.exerciseRecord.findMany({
