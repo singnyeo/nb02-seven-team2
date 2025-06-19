@@ -41,6 +41,7 @@ router
   .route('/:groupId/participants')
   .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
   .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
+  const RecordController = require('../controllers/records-controller');
 
 /**
  * 그룹 생성 API
@@ -59,6 +60,10 @@ router.patch('/:groupId', GroupController.patchGroup);
  * DELETE /groups/:groupId
  */
 router.delete('/:groupId', GroupController.deleteGroup);
+
+// 그룹 기록 생성
+// POST /groups/:groupId/records
+router.post('/:groupId/records', RecordController.createGroupRecord);
 
 // 그룹 ID를 기준으로 하는 기록 관련 하위 라우터 연결
 router.use('/:groupId', recordRouter);

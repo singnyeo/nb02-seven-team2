@@ -29,3 +29,4 @@ node_modules/@prisma/client
 generated/
 generated/prisma/
 .prisma/
+*.http
