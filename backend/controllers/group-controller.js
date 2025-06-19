@@ -309,8 +309,9 @@ class GroupController {
   */
   static async postGroup(req, res, next) {
     try{
-      const {ownerNickname, ownerPassword, tags, ...groupData} = req.body;
+      const {ownerNickname, ownerPassword, tags, photoUrl, ...groupData} = req.body;
       const hashedPassword = await hashPassword(ownerPassword);
+      const photoUrlvalid = photoUrl;
       const postGroup = await prisma.$transaction(async (tx) => {
         // 오너 유저 생성
         const owner = await tx.user.create({
@@ -323,6 +324,7 @@ class GroupController {
         const group = await tx.group.create({
           data: {
             ...groupData,
+            photoUrl: photoUrlvalid,
             ownerId: owner.id,
           },
         });

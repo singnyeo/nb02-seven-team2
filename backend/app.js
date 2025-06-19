@@ -7,6 +7,7 @@ require('dotenv').config();
 const groupRoutes = require('./routes/groups');
 const { swaggerSpec, swaggerUi } = require('./swagger/swagger');
 const { STATUS_CODE } = require('./utils/const');
+const uploadRoutes = require('./routes/uploads');
 
 // 미들웨어 import
 const errorHandler = require('./middlewares/error-handler');
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 // 라우터 연결
 app.use('/groups', groupRoutes);  // recordsRoutes 제거
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/images', uploadRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {
