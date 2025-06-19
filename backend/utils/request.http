@@ -1,0 +1,16 @@
+@port = 3000
+
+POST http://localhost:{{port}}/groups/3/records
+Content-Type: application/json; charset=UTF-8
+
+{
+    "exerciseType": "run",
+    "description": "this is running clues team!",
+    "time": 100,
+    "distance": 1000,
+    "photos": [
+        "https://cdn.pixabay.com/photo/2020/04/22/10/14/running-5077128_1280.jpg", "https://cdn.pixabay.com/photo/2017/01/01/15/45/running-1944798_1280.jpg" 
+    ],
+    "authorNickname": "pskguy",
+    "authorPassword": "wow!!!"
+}

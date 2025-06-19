@@ -3,6 +3,7 @@ const GroupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
 const groupDataValidation = require('../middlewares/validation-check');
 const recordRouter = require('./records');
+const RecordController = require('../controllers/records-controller');
 
 const router = express.Router();
 
@@ -59,6 +60,10 @@ router.patch('/:groupId', GroupController.patchGroup);
  * DELETE /groups/:groupId
  */
 router.delete('/:groupId', GroupController.deleteGroup);
+
+// 그룹 기록 생성
+// POST /groups/:groupId/records
+router.post('/:groupId/records', RecordController.createGroupRecord);
 
 // 그룹 ID를 기준으로 하는 기록 관련 하위 라우터 연결
 router.use('/:groupId', recordRouter);
