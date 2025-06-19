@@ -15,7 +15,6 @@ model Group {
   goalRep           Int
   discordWebhookUrl String
   discordInviteUrl  String
-  tag               Tag[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   badge             String[]
@@ -25,6 +24,7 @@ model Group {
   owner             User             @relation(fields: [ownerId], references: [id])
   ownerId           Int
   exerciseRecords   ExerciseRecord[]
+  groupTag          GroupTag[]
 }
 
 model GroupRecommend {
@@ -40,12 +40,19 @@ model GroupRecommend {
 }
 
 model Tag {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId   Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  groupTags GroupTag[]
+}
+
+model GroupTag {
+  id      Int   @id @default(autoincrement())
+  groupId Int
+  tagId   Int
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
 }
 
 model User {
