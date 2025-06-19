@@ -198,6 +198,14 @@ class RecordController {
         });
       }
 
+      const groupWebHook = group.discordWebhookUrl;
+
+      const resFromDiscord = await fetch(groupWebHook, {
+        method: 'POST',
+        headers: {'content-Type': 'application/json'},
+        body: JSON.stringify({content: '운동기록이 생성되었습니다.'})
+      });
+
       return res.status(STATUS_CODE.CREATED).json({
         id: recordObj.id,
         exerciseType: sport,
