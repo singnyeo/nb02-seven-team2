@@ -114,7 +114,7 @@ class RecordController {
       try {
         const reqGroupIdVerifyStruct = string();
         const reqBodyVerifyStruct = object({
-          exerciseType: string(),
+          exerciseType: enums(['run', 'bike', 'swim']),
           description: string(),
           time: number(),
           distance: number(),
@@ -187,7 +187,6 @@ class RecordController {
         }
       });
 
-      const photoObj = [];
       for (const photo of photos) {
         await prisma.photo.create({
           data: {
@@ -205,6 +204,8 @@ class RecordController {
         headers: {'content-Type': 'application/json'},
         body: JSON.stringify({content: '운동기록이 생성되었습니다.'})
       });
+
+      // console.log(resFromDiscord);
 
       return res.status(STATUS_CODE.CREATED).json({
         id: recordObj.id,
