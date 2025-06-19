@@ -24,10 +24,13 @@ class TagController {
             take: limit,
             orderBy: orderByCondition
         });
+        const total = await prisma.tag.count({
+            where: { name: { contains: search } },
+        });
 
-        res.json(tags);
+        res.json({ data: tags, total });
     }
-    
+
     static async getTag(req, res, next) {
         const { tagId } = req.params;
         const tag = await prisma.tag.findUnique({
