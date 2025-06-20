@@ -22,4 +22,8 @@ router.get('/records/:recordId', RecordViewController.getRecordById);
  */
 router.get('/records', RecordsController.getGroupRecords);
 
+// 그룹 기록 생성
+// POST /groups/:groupId/records
+router.post('/records', RecordsController.createGroupRecord);
+
 module.exports = router;
