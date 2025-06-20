@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'example.com', //추가된 내용
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
       }
     ],
   

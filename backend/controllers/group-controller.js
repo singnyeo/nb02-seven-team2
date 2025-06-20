@@ -1,7 +1,7 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { hashPassword, comparePassword } = require('../utils/password');
+const prisma = require('../utils/db');
 
-const prisma = new PrismaClient();
 
 class GroupController {
   /**
@@ -309,19 +309,22 @@ class GroupController {
   */
   static async postGroup(req, res, next) {
     try{
-      const {ownerNickname, ownerPassword, tags, ...groupData} = req.body;
+      const {ownerNickname, ownerPassword, tags, photoUrl, ...groupData} = req.body;
+      const hashedPassword = await hashPassword(ownerPassword);
+      const photoUrlvalid = photoUrl;
       const postGroup = await prisma.$transaction(async (tx) => {
         // 오너 유저 생성
         const owner = await tx.user.create({
           data: {
             nickname: ownerNickname,
-            password: ownerPassword,
+            password: hashedPassword,
           }
         });
         // 그룹 생성
         const group = await tx.group.create({
           data: {
             ...groupData,
+            photoUrl: photoUrlvalid,
             ownerId: owner.id,
           },
         });
@@ -375,11 +378,10 @@ class GroupController {
           createdAt: group.createdAt.getTime(),
           updatedAt: group.updatedAt.getTime(),
           badges: group.badge || [],
-          recordCount: 0
         };
         return response;
       });
-      res.status(200).json(postGroup);
+      res.status(201).json(postGroup);
     } catch (error) {
       next(error);
     }
@@ -420,7 +422,8 @@ class GroupController {
         return res.status(400).json({ "message": "Group not found" })
       }
       // 패스 워드 확인
-      if (existingGroup.owner.password === ownerPassword) {
+      const isMatchPassword = await comparePassword(ownerPassword, existingGroup.owner.password);
+      if (isMatchPassword) {
         // 트랜잭션으로 동시 실행
         const patchGroup = await prisma.$transaction(async (tx) => {
           let tag;
@@ -453,7 +456,7 @@ class GroupController {
           if (ownerNickname) {
             owner = await tx.user.update({
               where : { id: existingGroup.owner.id },
-              data: { nickname: ownerNickname }
+              data: { nickname: ownerNickname },
             });
           }
           // 그룹 업데이트
@@ -491,7 +494,6 @@ class GroupController {
             createdAt: group.createdAt.getTime(),
             updatedAt: group.updatedAt.getTime(),
             badges: group.badge || [],
-            recordCount: 0 // Record 모델이 아직 없으므로 0으로 설정
           };
           return response
         });
@@ -522,7 +524,8 @@ class GroupController {
         return res.status(404).json({ "message": "Group not found" })
       }
       // 패스 워드 확인
-      if (existingGroup.owner.password === password) {
+      const isMatchPassword = await comparePassword(password, existingGroup.owner.password);
+      if (isMatchPassword) {
         await prisma.group.delete({
           where: { id: id }
         })

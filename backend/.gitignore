@@ -1,3 +1,5 @@
+*serviceAccountKey.jon
+
 # Node modules
 node_modules/
 
@@ -29,3 +31,6 @@ node_modules/@prisma/client
 generated/
 generated/prisma/
 .prisma/
+
+# Key
+serviceAccountKey.json
