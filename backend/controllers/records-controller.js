@@ -141,7 +141,7 @@ class RecordController {
         authorPassword,
       } = req.body;
 
-      console.log(req.body);
+      // console.log(req.body);
 
       // 전달받은 그룹의 아이디를 통해서 그룹을 검색한다. 그룹이 없다면, null을 리턴한다.
       const group = await prisma.group.findUnique({
