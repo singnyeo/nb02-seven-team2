@@ -1,4 +1,4 @@
-# SEVEN 2팀 (수정중)
+# SEVEN 2팀
 
 ## 🧑‍💻 팀원 구성
 *아래 프로필 사진을 클릭하면 각 팀원의 GitHub 프로필로 이동합니다.*
@@ -78,56 +78,204 @@
 - 팀원 역할, 일정, 커뮤니케이션 규칙 등을 확인하세요.
 
 ## ⚙️ 팀원별 구현 기능 상세
+### **차수연**
+### **그룹 등록**
+  - 그룹명, 설명, 닉네임, 비밀번호, 사진(한 장), 태그, 목표 횟수, 디스코드 웹훅 URL, 디스코드 서버 초대 URL 입력 등록
+<table style="width:100%; table-layout: fixed;">
+  <tr>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 생성 (groupId = 6).png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>POST 그룹 생성</b>
+    </td>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 생성 (groupId= 6) (2).png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>POST 그룹 생성 결과</b>
+    </td>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 생성.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 그룹 생성</b>
+    </td>
+  </tr>
+</table>
 
-### 차수연
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
-
-- **그룹 등록**
-  - 그룹명, 설명, 닉네임, 비밀번호, 사진(한 장), 태그, 목표 횟수, 디스코드 웹훅 URL, 디스코드 서버 초대 URL을 입력하여 등록
-- **그룹 수정**
+### **그룹 수정**
   - 비밀번호를 입력하여 그룹 등록 시 입력했던 비밀번호와 일치할 경우 수정
-- **그룹 삭제**
+<table style="width:100%; table-layout: fixed;">
+  <tr>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 수정 (goalRep = 15).png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>Front 목표 횟수 10 → 15</b>
+    </td>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 수정 목표 횟수.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>Front 목표 횟수 10 → 15 결과</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 수정 groupid.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>PATCH groupId: 6 레포츠 → 헬스마니아</b>
+    </td>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 수정 결과.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>PATCH groupId: 6 레포츠 → 헬스마니아 결과</b>
+    </td>
+  </tr>
+</table>
+
+### **그룹 삭제**
   - 비밀번호를 입력하여 그룹 등록 시 입력했던 비밀번호와 일치할 경우 삭제 가능
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/groups/그룹 삭제 비밀번호 입력.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>DELETE 그룹 삭제 비밀번호 입력</b>
+    </td>
+    <td align="center">
+      <img src="images/groups/그룹 삭제 포스트맨.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>DELETE 그룹 삭제</b>
+    </td>
+  </tr>
+</table>
+
+### **이미지 업로드**
+  - 이미지 파일을 업로드하면 URL 목록을 반환
+  - 여러 파일 업로드 가능
+  - 이미지 파일만 허용
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/uploads/업로드 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>이미지 등록</b>
+    </td>
+    <td align="center">
+      <img src="images/uploads/업로트 프론트(2).png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>이미지 등록 결과</b>
+    </td>
+  </tr>
+</table>
+
+---
 
 ### 이종진
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
-
-- **그룹 목록 조회**
+### **그룹 목록 조회**
   - 각 그룹의 그룹명, 닉네임, 사진, 태그, 목표 횟수, 추천수, 참여자수가 표시
   - 최신순, 추천순, 참여자순으로 정렬
   - 그룹명으로 검색
   - 페이지네이션
-- **그룹 상세 조회**
+  <table>
+  <tr>
+    <td align="center">
+      <img src="images/groups/그룹 목록 조회.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 그룹 목록 조회</b>
+    </td>
+    <td align="center">
+      <img src="images/groups/그룹 목록 조회 (2).png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 그룹 목록 조회 페이지네이션</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/groups/그룹 목록 조회 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 그룹 목록 조회</b>
+    </td>
+  </tr>
+</table>
+
+### **그룹 상세 조회**
   - 그룹명, 설명, 닉네임, 사진, 태그, 목표 횟수, 참여자 수, 디스코드 서버 초대 URL을 조회
-- **그룹 추천**
+  <table>
+  <tr>
+    <td align="center">
+      <img src="images/groups/그룹 상세 조회.png" width="80%" style="aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>그룹 상세 조회</b>
+    </td>
+  </tr>
+</table>
+
+### **그룹 추천**
   - 그룹 추천이 호출될 때마다 추천수가 1씩 증가
+  <table style="width:100%; table-layout: fixed;">
+  <tr>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 추천 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 그룹 추천</b>
+    </td>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 추천 포스트맨.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>POST 그룹 추천</b>
+    </td>
+    <td align="center" style="width:33%;">
+      <img src="images/groups/그룹 추천 취소 포스트맨.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>DELETE 그룹 추천 취소</b>
+    </td>
+  </tr>
+</table>
+
+---
 
 ### 조가현
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
-
-- **그룹 배지**
-  - 그룹이 일정 조건을 달성하면 자동으로 배지 획득
-    - 참여자 10명 이상
-    - 운동 기록 100개 이상
-    - 추천수 100 이상
-- **그룹 참여**
+### **그룹 참여**
   - 닉네임과 비밀번호를 입력하여 그룹 참여
     - 그룹 내에서 중복된 닉네임 등록 불가
   - 비밀번호 인증을 통해 그룹 참여 취소가 가능
   - 참여를 취소하면 해당 닉네임이 생성한 운동 기록은 모두 삭제
+<table style="width:100%; table-layout: fixed;">
+  <tr>
+    <td align="center" style="width:50%;">
+     <img src="images/groups/그룹 참여 포스트맨.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>POST 그룹 참여</b>
+    </td>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹에서 그룹 참여 확인.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 그룹, 그룹 참여 결과</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 참여 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 그룹 참여 취소</b>
+    </td>
+    <td align="center" style="width:50%;">
+      <img src="images/groups/그룹 참여 취소.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>DELETE 그룹 참여 취소</b>
+    </td>
+  </tr>
+</table>
+
+### **그룹 배지**
+  - 그룹이 일정 조건을 달성하면 자동으로 배지 획득
+    - 참여자 10명 이상
+    - 운동 기록 100개 이상
+    - 추천수 100 이상
+
+---
 
 ### 박성국
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
-
 - **기록 등록**
   - 닉네임, 운동 종류(달리기, 자전거, 수영), 설명, 시간, 거리, 사진(여러장 가능), 비밀번호 입력하여 운동 기록 등록
   - 타이머를 통해 측정된 실제 운동한 만큼의 시간만 입력 가능
   - 닉네임, 비밀번호를 확인하여 그룹에 등록된 유저일 때만 기록 등록
-  - 새로운 운동 기록이 등록 되었을 때 그룹에 등록된 디스코드 웹 서버로 알림 전송
-- **이미지 업로드**
-  - 이미지 파일을 업로드하면 URL 목록을 반환
-  - 여러 파일 업로드 가능
-  - 이미지 파일만 허용
+  - 새로운 운동 기록이 등록 되었을 때 그룹에 등록된 디스코드 웹 서버 알림 전송
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록 생성 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 기록 등록</b>
+    </td>
+    <td align="center">
+      <img src="images/records/기록 생성 디스코드 웹 서버 알림.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 디스코트 웹 서버 알림</b>
+    </td>
+  </tr>
+</table>
+
+
+
 - **태그 목록 조회**
   - 등록된 태그 목록 조회
   - 태그 이름으로 검색 가능
@@ -135,26 +283,92 @@
   - 페이지네이션
 - **태그 상세 조회**
   - 태그 이름, 생성일, 수정일 조회
+  <table>
+  <tr>
+    <td align="center">
+      <img src="images/tags/그룹 태그 조회.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>그룹 태그 조회</b>
+      <td align="center">
+      <img src="images/tags/그룹 태그 상세 조회.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>그룹 태그 상세 조회</b>
+    </td>
+  </tr>
+</table>
+
+    
+---
 
 ### 김수민
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
+**기록 목록 조회**
 
-- **기록 목록 조회**
-  - 그룹 내에 등록된 모든 유저의 운동 기록 조회
-  - 닉네임, 운동 종류, 시간, 거리, 사진 표시
-  - 최신순, 운동시간순으로 정렬
-  - 닉네임 검색
-  - 페이지네이션
+- 그룹 내에 등록된 모든 유저의 운동 기록 조회 가능
+- 닉네임, 운동 종류, 시간, 거리, 사진 표시
+- 최신순, 운동시간순 정렬
+- 닉네임 검색
+- 페이지네이션
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록 목록 조회 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 기록 목록 조회</b>
+    </td>
+    <td align="center">
+      <img src="images/records/기록 목록 조회 페이지네이션.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 기록 목록 조회 페이지네이션</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록 목록 조회.png" width="80%" style="aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 기록 목록 조회</b>
+    </td>
+  </tr>
+</table>
+
+---
 
 ### 강시연
-*(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)*
-
-- **기록 랭킹 조회**
-  - 운동 기록 많은 순으로 주간, 월간 랭킹 조회
-  - 닉네임, 기록 횟수, 누적 시간 조회
-  - 페이지네이션
-- **기록 상세 조회**
+**기록 상세 조회**
 - 운동 종류, 설명, 사진(여러장), 시간, 거리, 닉네임 조회
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록%20목록%20상세%20조회.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 기록 목록 상세 조회</b>
+    </td>
+  </tr>
+</table>
+
+**기록 랭킹 조회**
+- 운동 기록 많은 순으로 주간, 월간 랭킹 조회
+- 닉네임, 기록 횟수, 누적 시간 조회
+- 페이지네이션
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록%20랭킹%20조회.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 기록 랭킹 조회</b>
+    </td>
+    <td align="center">
+      <img src="images/records/기록 랭크 조회 페이지네이션.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>GET 기록 랭킹 조회 페이지네이션</b>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/records/기록 랭크 조회 프론트.png" height="300" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;" /><br/>
+      <b>FRONT 기록 랭크 조회</b>
+    </td>
+  </tr>
+</table>
 
 ### 공통 요구 사항
 
@@ -331,9 +545,7 @@ README.md
 ```
 
 ## 구현 홈페이지
+[프론트엔드 서버 배포 주소](https://nb02-seven-team2-mobq.onrender.com/)
+/
+[백엔드 서버 배포 주소](https://three-sprint-mission-4goe.onrender.com/)
 
-[개발한 홈페이지 링크](https://www.codeit.kr/)
-
-## 프로젝트 회고록
-
-*(제작한 발표자료 링크 혹은 첨부파일 첨부)*
