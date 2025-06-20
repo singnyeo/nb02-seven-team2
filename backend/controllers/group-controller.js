@@ -512,7 +512,7 @@ class GroupController {
   static async deleteGroup(req, res, next) {
     try {
       const id = parseInt(req.params.groupId)
-      const { password } = req.body;
+      const { ownerPassword : password } = req.body;
       // 삭제 그룹 조회
       const existingGroup = await prisma.group.findUnique({
         where: { id: id},
