@@ -25,7 +25,13 @@ const sortBadges = (badges: BadgeType[]) => {
   return badges.sort((a, b) => BADGE_ORDER.indexOf(a) - BADGE_ORDER.indexOf(b));
 };
 
-const GroupDetail = ({ group }: { group: Group }) => {
+const GroupDetail = ({ group, recordsTotal }: { group: Group, recordsTotal:number }) => {
+  const hasBadges = group.badges || [];
+
+  if(group.participants.length >= 10) hasBadges.push(BadgeType.PARTICIPATION_10);
+  if(recordsTotal >= 100) hasBadges.push(BadgeType.RECORD_100);
+  if(group.likeCount >= 100) hasBadges.push(BadgeType.LIKE_100);
+
   return (
     <div className={cx('container')}>
       <Image
@@ -76,7 +82,7 @@ const GroupDetail = ({ group }: { group: Group }) => {
       </div>
       <SettingMenu className={cx('settingButton')} groupId={group.id} />
       <div className={cx('badges')}>
-        {sortBadges(group.badges).map((badge) => (
+        {sortBadges(hasBadges).map((badge) => (
           <Badge key={badge} className={cx('badge')} badge={badge} />
         ))}
       </div>

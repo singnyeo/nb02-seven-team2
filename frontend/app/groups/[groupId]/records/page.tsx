@@ -25,7 +25,7 @@ const GroupRecordsPage = async ({
 
   return (
     <>
-      <GroupDetail group={group} />
+      <GroupDetail group={group} recordsTotal={recordsTotal} />
       <GroupTab groupId={groupId} selectedTab="records">
         <RecordTabHeader
           groupId={groupId}
