@@ -1,6 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
-const { object, string, optional, enums, validate, StructError } = require('superstruct');
+const { object, string, optional, enums, validate, StructError, array, number, assert } = require('superstruct');
 const prisma = new PrismaClient();
+const { hashPassword, comparePassword } = require('../utils/password.js');
+const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
+const handleError = require('../utils/error');
 
 class RecordController {
   /**
@@ -102,6 +105,118 @@ class RecordController {
       return res.status(200).json({ data, total });
     } catch (err) {
       next(err);
+    }
+  }
+
+  static async createGroupRecord(req, res, next) {
+    try {
+
+      try {
+        const reqGroupIdVerifyStruct = string();
+        const reqBodyVerifyStruct = object({
+          exerciseType: enums(['run', 'bike', 'swim']),
+          description: string(),
+          time: number(),
+          distance: number(),
+          photos: array(string()),
+          authorNickname: string(),
+          authorPassword: string(),
+        });
+
+        assert(req.params.groupId, reqGroupIdVerifyStruct);
+        assert(req.body, reqBodyVerifyStruct);
+      } catch (err) {
+        return next(err);
+      }
+
+      // 요청 데이터를 받아서 숫자로 변환한다.
+      const groupId = Number(req.params.groupId);
+      const {
+        exerciseType: sport,
+        description,
+        time: duration,
+        distance,
+        photos,
+        authorNickname,
+        authorPassword,
+      } = req.body;
+
+      // console.log(req.body);
+
+      // 전달받은 그룹의 아이디를 통해서 그룹을 검색한다. 그룹이 없다면, null을 리턴한다.
+      const group = await prisma.group.findUnique({
+        where: { id: groupId }
+      });
+
+      if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
+
+      // 유저가 있는지 확인한다. 유저가 없으면, 생성해야 한다.
+      let user = await prisma.user.findUnique({
+        where: { nickname: authorNickname },
+      });
+
+      // 유저가 있는데 비번이 틀리면 에러가 발생한다.
+      if (user && await comparePassword(authorPassword, user.password) === false) {
+        return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED)
+      }
+
+      // 유저가 아예 없다면, 새로 생성한다.
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            nickname: authorNickname,
+            password: await hashPassword(authorPassword)
+          }
+        });
+      }
+
+      // 운동 기록을 생성한다.
+      const recordObj = await prisma.exerciseRecord.create({
+        data: {
+          sport,
+          description,
+          duration,
+          distance,
+          userId: user.id,
+          groupId
+        }
+      });
+
+      for (const photo of photos) {
+        await prisma.photo.create({
+          data: {
+            url: photo,
+            photoTag: "EXERCISERECORD",
+            exerciseRecordId: recordObj.id
+          }
+        });
+      }
+
+      const groupWebHook = group.discordWebhookUrl;
+
+      const resFromDiscord = await fetch(groupWebHook, {
+        method: 'POST',
+        headers: {'content-Type': 'application/json'},
+        body: JSON.stringify({content: '운동기록이 생성되었습니다.'})
+      });
+
+      // console.log(resFromDiscord);
+
+      return res.status(STATUS_CODE.CREATED).json({
+        id: recordObj.id,
+        exerciseType: sport,
+        description,
+        time: duration,
+        distance,
+        photos,
+        author: {
+          id: user.id,
+          nickname: user.nickname
+        }
+      });
+
+    } catch (err) {
+      return handleError(res, err, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 }
