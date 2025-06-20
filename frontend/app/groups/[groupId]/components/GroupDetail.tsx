@@ -25,7 +25,7 @@ const sortBadges = (badges: BadgeType[]) => {
   return badges.sort((a, b) => BADGE_ORDER.indexOf(a) - BADGE_ORDER.indexOf(b));
 };
 
-const GroupDetail = ({ group, recordsTotal }: { group: Group, recordsTotal:number }) => {
+const GroupDetail = ({ group, recordsTotal = 0 }: { group: Group, recordsTotal?:number }) => {
   const hasBadges = group.badges || [];
 
   if(group.participants.length >= 10) hasBadges.push(BadgeType.PARTICIPATION_10);
