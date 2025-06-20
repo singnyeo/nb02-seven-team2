@@ -28,20 +28,19 @@ class TagController {
             } catch (err) {
                 next(err);
             }
-
-            const query = {
+            
+            const tags = await prisma.tag.findMany({
                 ...(search !== '' && {
                     name: {
-                        contain: search,
+                        contains: search,
                         mode: 'insensitive'
                     }
-                })
-            };
-            query.skip = (page - 1) * limit;
-            query.take = limit;
-            query.orderBy = { [orderBy]: order };
+                }),
+                skip:(page - 1) * limit,
+                take:limit,
+                orderBy:{ [orderBy]: order }
+            });
 
-            const tags = await prisma.tag.findMany(query);
             res.status(200).json({ data: tags, total: tags.length });
         } catch (err) {
             next(err);
@@ -60,7 +59,7 @@ class TagController {
             const tag = await prisma.tag.findUnique({where: {id:tagId}});
             
             if (!tag) {
-                return next(err);
+                return res.status(404).json({message: '해당 태그를 찾을 수 없습니다.'});
             }
 
             res.status(200).json(tag);
