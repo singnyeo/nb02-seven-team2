@@ -21,9 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // 라우터 연결
 app.use('/groups', groupRoutes);  // recordsRoutes 제거
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/images', uploadRoutes);
-
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // 기본 라우트
 app.get('/', (req, res) => {
   res.json({

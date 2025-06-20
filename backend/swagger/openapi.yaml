@@ -254,7 +254,7 @@ paths:
                         type: array
                         items:
                           type: string
-                        description: 그룹 배지 목록
+                          description: 그룹 배지 목록
                   total:
                     type: integer
                     description: 총 그룹 수
