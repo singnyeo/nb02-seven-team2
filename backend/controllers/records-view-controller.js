@@ -11,14 +11,14 @@ class RecordViewController {
     try {
       const groupId = Number(req.params.groupId);
       if (!groupId || groupId <= 0) {
-        return handleError(res, null, ERROR_MSG.INVALID_GROUP_ID, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.INVALID_GROUP_ID, STATUS_CODE.NOT_FOUND);
       }
 
       const { duration = 'weekly', limit = '10', page = '1' } = req.query;
 
       const group = await prisma.group.findUnique({ where: { id: groupId } });
       if (!group) {
-        return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
 
       const days = duration === 'monthly' ? 30 : 7;
@@ -72,15 +72,15 @@ class RecordViewController {
       const recordId = Number(req.params.recordId);
 
       if (!groupId || groupId <= 0) {
-        return handleError(res, null, ERROR_MSG.INVALID_GROUP_ID, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.INVALID_GROUP_ID, STATUS_CODE.NOT_FOUND);
       }
       if (!recordId || recordId <= 0) {
-        return handleError(res, null, ERROR_MSG.INVALID_RECORD_ID, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.INVALID_RECORD_ID, STATUS_CODE.NOT_FOUND);
       }
 
       const group = await prisma.group.findUnique({ where: { id: groupId } });
       if (!group) {
-        return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
 
       const record = await prisma.exerciseRecord.findFirst({
@@ -100,7 +100,7 @@ class RecordViewController {
       });
 
       if (!record) {
-        return handleError(res, null, ERROR_MSG.RECORD_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+        return handleError(next, null, ERROR_MSG.RECORD_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
 
       return res.status(STATUS_CODE.SUCCESS).json({
