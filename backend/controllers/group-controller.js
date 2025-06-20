@@ -421,11 +421,11 @@ class GroupController {
         }
       });
       if (!existingGroup) {
-        return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
+        return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
       }
       // 패스 워드 확인
       const isMatchPassword = await comparePassword(ownerPassword, existingGroup.owner.password);
-      if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      if (!isMatchPassword) return handleError(next, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
         
       // 트랜잭션으로 동시 실행
       const patchGroup = await prisma.$transaction(async (tx) => {
@@ -520,11 +520,11 @@ class GroupController {
           owner: true,
         }
       });
-      if (!existingGroup) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
+      if (!existingGroup) return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
 
       // 패스 워드 확인
       const isMatchPassword = await comparePassword(password, existingGroup.owner.password);
-      if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      if (!isMatchPassword) return handleError(next, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
       
       await prisma.group.delete({
         where: { id: id }
