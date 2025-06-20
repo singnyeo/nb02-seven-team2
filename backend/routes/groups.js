@@ -1,8 +1,8 @@
 const express = require('express');
 const GroupController = require('../controllers/group-controller');
 const GroupParticipantController = require('../controllers/group-participant-controller');
-const groupDataValidation = require('../middlewares/validation-check');
 const recordRouter = require('./records');
+const ValidationCheck = require('../middlewares/validation-check');
 
 const router = express.Router();
 
@@ -39,8 +39,9 @@ router.delete('/:groupId/likes', GroupController.unrecommendGroup); //GroupContr
  */
 router
   .route('/:groupId/participants')
-  .post(groupDataValidation, GroupParticipantController.postGroupParticipant) // 그룹 참여 API
-  .delete(groupDataValidation, GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
+  .all(ValidationCheck.validateGroupId, ValidationCheck.validateNickname, ValidationCheck.validatePassword) // 유효성 검사 미들웨어
+  .post(GroupParticipantController.postGroupParticipant) // 그룹 참여 API
+  .delete(GroupParticipantController.deleteGroupParticipant); // 그룹 참여 취소 API
 
 /**
  * 그룹 생성 API

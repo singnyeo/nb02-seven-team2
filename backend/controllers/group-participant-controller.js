@@ -1,14 +1,14 @@
-const db = require('../utils/db');
+const prisma = require('../utils/db');
 const handleError = require('../utils/error');
 const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
 const { hashPassword, comparePassword } = require('../utils/password');
 
 /** 유저 조회 */
-const findUserByNickname = (nickname) => db.user.findUnique({ where: { nickname } });
+const findUserByNickname = (nickname) => prisma.user.findUnique({ where: { nickname } });
 /** 그룹 조회 */
-const findGroupById = (groupId) => db.group.findUnique({ where: { id: groupId } });
+const findGroupById = (groupId) => prisma.group.findUnique({ where: { id: groupId } });
 /** 그룹 내 참여자 조회 */
-const findParticipant = (nickname, groupId) => db.participant.findFirst({
+const findParticipant = (nickname, groupId) => prisma.participant.findFirst({
   where: {
     groupId,
     user: { nickname },
@@ -24,7 +24,7 @@ class GroupParticipantController {
    * @param {string} req.body.nickname - 참여자 닉네임
    * @param {string} req.body.password - 참여자의 비밀번호
    */
-  static async postGroupParticipant(req, res) {
+  static async postGroupParticipant(req, res, next) {
     const groupId = Number(req.params.groupId);
     const { nickname, password } = req.body;
     const now = new Date();
@@ -37,18 +37,18 @@ class GroupParticipantController {
       const hashedPassword = await hashPassword(password);
 
       // 2. 그룹 존재 여부 확인
-      if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
+      if (!group) return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
       // 3. 그룹 내 참여자 존재 조회
-      if (participant) return handleError(res, null, ERROR_MSG.NICKNAME_ALREADY_EXISTS, STATUS_CODE.BAD_REQUEST);
+      if (participant) return handleError(next, null, ERROR_MSG.NICKNAME_ALREADY_EXISTS, STATUS_CODE.BAD_REQUEST);
       // 4. 유저가 있으면 비밀번호 확인
       if (user) {
         // 4-1. 비밀번호 비교
         const isMatchPassword = await comparePassword(password, user.password);
-        if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED)
+        if (!isMatchPassword) return handleError(next, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED)
       };
 
       // 5. 참여자 생성
-      await db.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         // 5-1. 유저가 없으면 생성
         if (!user) {
           user = await tx.user.create({
@@ -79,7 +79,7 @@ class GroupParticipantController {
       });
 
       // 6. 그룹 정보 업데이트
-      const updatedGroup = await db.group.findUnique({
+      const updatedGroup = await prisma.group.findUnique({
         where: { id: groupId },
         include: {
           owner: true,
@@ -119,7 +119,7 @@ class GroupParticipantController {
 
       return res.status(STATUS_CODE.CREATED).json({ ...response });
     } catch (error) {
-      return handleError(res, error, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      return handleError(next, error, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -131,7 +131,7 @@ class GroupParticipantController {
  * @param {string} req.body.nickname - 참여자 닉네임
  * @param {string} req.body.password - 참여자의 비밀번호
  */
-  static async deleteGroupParticipant(req, res) {
+  static async deleteGroupParticipant(req, res, next) {
     const groupId = Number(req.params.groupId);
     const { nickname, password } = req.body;
 
@@ -144,21 +144,21 @@ class GroupParticipantController {
       ]);
       const isMatchPassword = await comparePassword(password, user.password);
       // 2. 유저 확인
-      if (!user) return handleError(res, null, ERROR_MSG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+      if (!user) return handleError(next, null, ERROR_MSG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       // 2. 그룹 확인
-      if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+      if (!group) return handleError(next, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       // 3. 그룹 내 참여자 조회
-      if (!participant) return handleError(res, null, ERROR_MSG.PARTICIPANT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
+      if (!participant) return handleError(next, null, ERROR_MSG.PARTICIPANT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       // 4. 비밀번호 확인
-      if (!user || !isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      if (!user || !isMatchPassword) return handleError(next, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
 
       // 5. 해당 유저의 운동 기록 id 목록 조회
-      const exerciseRecordIds = (await db.exerciseRecord.findMany({
+      const exerciseRecordIds = (await prisma.exerciseRecord.findMany({
         where: { groupId, userId: user.id },
         select: { id: true },
       })).map((record) => record.id);
 
-      await db.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         // 6. 운동 사진 삭제
         await tx.photo.deleteMany({ where: { exerciseRecordId: { in: exerciseRecordIds }, } });
         // 7. 운동 기록 삭제
@@ -169,7 +169,7 @@ class GroupParticipantController {
 
       return res.status(STATUS_CODE.NO_CONTENT).json({ message: '참여자가 성공적으로 삭제되었습니다.' });
     } catch (error) {
-      return handleError(res, error, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      return handleError(next, error, ERROR_MSG.SERVER_ERROR, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 }
