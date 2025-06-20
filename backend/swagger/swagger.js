@@ -46,7 +46,6 @@ const swaggerOptions = {
 
 // Swagger 문서 생성
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-// YAML 파일 로드
 
 module.exports = {
   swaggerSpec,

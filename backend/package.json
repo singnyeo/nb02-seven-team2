@@ -10,7 +10,8 @@
     "seed": "node seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "docs": "node ./swagger/export-swagger.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,8 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "firebase": "^11.9.1",
+    "firebase-admin": "^13.4.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "pg": "^8.16.0",
