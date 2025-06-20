@@ -1,6 +1,8 @@
 const express = require('express');
 const { hashPassword, comparePassword } = require('../utils/password');
 const prisma = require('../utils/db');
+const handleError = require('../utils/error');
+const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
 
 
 class GroupController {
@@ -419,88 +421,86 @@ class GroupController {
         }
       });
       if (!existingGroup) {
-        return res.status(400).json({ "message": "Group not found" })
+        return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
       }
       // 패스 워드 확인
       const isMatchPassword = await comparePassword(ownerPassword, existingGroup.owner.password);
-      if (isMatchPassword) {
-        // 트랜잭션으로 동시 실행
-        const patchGroup = await prisma.$transaction(async (tx) => {
-          let tag;
-          if (tags) {
-            // 기존 태그 삭제
-            await Promise.all( 
-              existingGroup.tag.map(tag => {
-                return tx.tag.delete({
-                  where: { id: tag.id },
-                })
+      if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+        
+      // 트랜잭션으로 동시 실행
+      const patchGroup = await prisma.$transaction(async (tx) => {
+        let tag;
+        if (tags) {
+          // 기존 태그 삭제
+          await Promise.all( 
+            existingGroup.tag.map(tag => {
+              return tx.tag.delete({
+                where: { id: tag.id },
               })
-            )
-            //새 태그 생성
-            tag = await Promise.all(
-              tags.map(name => {
-                return tx.tag.create({
-                  data: { 
-                    name: name,
-                    groupId: id
-                  },
-                })
-              }),
-            )
-          } else {
-            //태그 패치 없을시 기존 태그 가져오기
-            tag = existingGroup.tag;
-          }
-          // 오너 업데이트 (ownerNickname이 있을 때만)
-          let owner = existingGroup.owner;
-          if (ownerNickname) {
-            owner = await tx.user.update({
-              where : { id: existingGroup.owner.id },
-              data: { nickname: ownerNickname },
-            });
-          }
-          // 그룹 업데이트
-          const group = await tx.group.update({
-            where: { id: id },
-            data: updateData,
+            })
+          )
+          //새 태그 생성
+          tag = await Promise.all(
+            tags.map(name => {
+              return tx.tag.create({
+                data: { 
+                  name: name,
+                  groupId: id
+                },
+              })
+            }),
+          )
+        } else {
+          //태그 패치 없을시 기존 태그 가져오기
+          tag = existingGroup.tag;
+        }
+        // 오너 업데이트 (ownerNickname이 있을 때만)
+        let owner = existingGroup.owner;
+        if (ownerNickname) {
+          owner = await tx.user.update({
+            where : { id: existingGroup.owner.id },
+            data: { nickname: ownerNickname },
           });
-          // groupRecommend 카운트
-          const likeCount = await tx.groupRecommend.count({
-            where: { groupId: group.id },
-          });
-          // 응답 데이터 가공
-          const response = {
-            id: group.id,
-            name: group.name,
-            description: group.description,
-            photoUrl: group.photoUrl,
-            goalRep: group.goalRep,
-            discordWebhookUrl: group.discordWebhookUrl,
-            discordInviteUrl: group.discordInviteUrl,
-            likeCount: likeCount,
-            tags: tag.map(t => t.name),
-            owner: {
-              id: owner.id,
-              nickname: owner.nickname,
-              createdAt: owner.createdAt.getTime(),
-              updatedAt: owner.updatedAt.getTime(),
-            },
-            participants: existingGroup.participants.map(p => ({
-              id: p.user.id,
-              nickname: p.user.nickname,
-              createdAt: p.createdAt.getTime(),
-              updatedAt: p.updatedAt.getTime(),
-            })),
-            createdAt: group.createdAt.getTime(),
-            updatedAt: group.updatedAt.getTime(),
-            badges: group.badge || [],
-          };
-          return response
+        }
+        // 그룹 업데이트
+        const group = await tx.group.update({
+          where: { id: id },
+          data: updateData,
         });
-        return res.status(200).json(patchGroup);
-      } else {
-        return res.status(403).json({ error: '비밀번호가 틀렸습니다.' });
-      }
+        // groupRecommend 카운트
+        const likeCount = await tx.groupRecommend.count({
+          where: { groupId: group.id },
+        });
+        // 응답 데이터 가공
+        const response = {
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          photoUrl: group.photoUrl,
+          goalRep: group.goalRep,
+          discordWebhookUrl: group.discordWebhookUrl,
+          discordInviteUrl: group.discordInviteUrl,
+          likeCount: likeCount,
+          tags: tag.map(t => t.name),
+          owner: {
+            id: owner.id,
+            nickname: owner.nickname,
+            createdAt: owner.createdAt.getTime(),
+            updatedAt: owner.updatedAt.getTime(),
+          },
+          participants: existingGroup.participants.map(p => ({
+            id: p.user.id,
+            nickname: p.user.nickname,
+            createdAt: p.createdAt.getTime(),
+            updatedAt: p.updatedAt.getTime(),
+          })),
+          createdAt: group.createdAt.getTime(),
+          updatedAt: group.updatedAt.getTime(),
+          badges: group.badge || [],
+        };
+        return response
+      });
+      res.status(200).json(patchGroup);
     } catch(error) {
       next(error);
     }
@@ -520,19 +520,16 @@ class GroupController {
           owner: true,
         }
       });
-      if (!existingGroup) {
-        return res.status(404).json({ "message": "Group not found" })
-      }
+      if (!existingGroup) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
+
       // 패스 워드 확인
       const isMatchPassword = await comparePassword(password, existingGroup.owner.password);
-      if (isMatchPassword) {
-        await prisma.group.delete({
-          where: { id: id }
-        })
-        return res.status(200).json({ "ownerPassword": existingGroup.owner.password })
-      } else {
-        return res.status(401).json({ "message": "Wrong password" });
-      }
+      if (!isMatchPassword) return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED);
+      
+      await prisma.group.delete({
+        where: { id: id }
+      });
+      res.status(200).json({ "ownerPassword": existingGroup.owner.password });
     } catch(error) {
       next(error);
     }
