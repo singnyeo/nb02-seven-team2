@@ -1,6 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
 const { object, string, optional, enums, validate, StructError, array, number, assert } = require('superstruct');
-const prisma = new PrismaClient();
+const prisma = require('../utils/db');
 const { hashPassword, comparePassword } = require('../utils/password.js');
 const { ERROR_MSG, STATUS_CODE } = require('../utils/const');
 const handleError = require('../utils/error');
@@ -11,16 +10,16 @@ class RecordController {
    */
   static async getGroupRecords(req, res, next) {
     const ParamsStruct = object({
-      groupId: string(), 
+      groupId: string(),
     });
 
     const QueryStruct = object({
-      page: optional(string()), 
-      limit: optional(string()), 
-      order: optional(enums(['asc', 'desc'])), 
-      orderBy: optional(enums(['createdAt', 'duration'])), 
-      search: optional(string()), 
-      sport: optional(string()), 
+      page: optional(string()),
+      limit: optional(string()),
+      order: optional(enums(['asc', 'desc'])),
+      orderBy: optional(enums(['createdAt', 'duration'])),
+      search: optional(string()),
+      sport: optional(string()),
     });
 
     // 유효성 검사
@@ -63,7 +62,7 @@ class RecordController {
 
       const where = {
         userId: { in: userIds },
-        ...(sport && { sport }), 
+        ...(sport && { sport }),
         user: {
           nickname: { contains: search.trim(), mode: 'insensitive' },
         },
@@ -111,6 +110,7 @@ class RecordController {
   static async createGroupRecord(req, res, next) {
     try {
 
+      // 요청 데이터 검증
       try {
         const reqGroupIdVerifyStruct = string();
         const reqBodyVerifyStruct = object({
@@ -129,7 +129,7 @@ class RecordController {
         return next(err);
       }
 
-      // 요청 데이터를 받아서 숫자로 변환한다.
+      // 요청 데이터 구조 분해
       const groupId = Number(req.params.groupId);
       const {
         exerciseType: sport,
@@ -141,18 +141,22 @@ class RecordController {
         authorPassword,
       } = req.body;
 
-      // console.log(req.body);
-
-      // 전달받은 그룹의 아이디를 통해서 그룹을 검색한다. 그룹이 없다면, null을 리턴한다.
+      // 그룹, 유저 확인
       const group = await prisma.group.findUnique({
         where: { id: groupId }
       });
 
       if (!group) return handleError(res, null, ERROR_MSG.GROUP_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
 
-      // 유저가 있는지 확인한다. 유저가 없으면, 생성해야 한다.
       let user = await prisma.user.findUnique({
-        where: { nickname: authorNickname },
+        where: {
+          nickname: authorNickname,
+          participantedGroups: {
+            some: {
+              groupId
+            }
+          }
+        },
       });
 
       // 유저가 있는데 비번이 틀리면 에러가 발생한다.
@@ -160,17 +164,12 @@ class RecordController {
         return handleError(res, null, ERROR_MSG.PASSWORD_MISMATCH, STATUS_CODE.UNAUTHORIZED)
       }
 
-      // 유저가 아예 없다면, 새로 생성한다.
+      // 기록 생성은 참여자만 생성할 수 있도록 해야 한다.
       if (!user) {
-        user = await prisma.user.create({
-          data: {
-            nickname: authorNickname,
-            password: await hashPassword(authorPassword)
-          }
-        });
+        return handleError(res, null, ERROR_MSG.USER_NOT_FOUND, STATUS_CODE.BAD_REQUEST);
       }
 
-      // 운동 기록을 생성한다.
+      // 운동 기록 생성
       const recordObj = await prisma.exerciseRecord.create({
         data: {
           sport,
@@ -182,6 +181,7 @@ class RecordController {
         }
       });
 
+      // 사진 URL 생성 레코드 생성
       for (const photo of photos) {
         await prisma.photo.create({
           data: {
@@ -192,15 +192,15 @@ class RecordController {
         });
       }
 
+      // 디스코드 알림 전달
       const groupWebHook = group.discordWebhookUrl;
 
       const resFromDiscord = await fetch(groupWebHook, {
         method: 'POST',
-        headers: {'content-Type': 'application/json'},
-        body: JSON.stringify({content: '운동기록이 생성되었습니다.'})
+        headers: { 'content-Type': 'application/json' },
+        body: JSON.stringify({ content: '운동기록이 생성되었습니다.' })
       });
 
-      // console.log(resFromDiscord);
 
       return res.status(STATUS_CODE.CREATED).json({
         id: recordObj.id,
